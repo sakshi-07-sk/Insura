@@ -1,0 +1,376 @@
+{
+  "model_name": "RandomForest",
+  "selected_threshold": 0.61,
+  "validation_comparison": {
+    "RandomForest": {
+      "default_0_5_metrics": {
+        "threshold": 0.5,
+        "total_claims": 2313,
+        "genuine_claims": 2174,
+        "fraud_claims": 139,
+        "fraud_prevalence": 0.0601,
+        "confusion_matrix": {
+          "true_negatives": 1443,
+          "false_positives": 731,
+          "false_negatives": 16,
+          "true_positives": 123
+        },
+        "precision": 0.144,
+        "recall": 0.8849,
+        "f1_score": 0.2477,
+        "pr_auc": 0.2408,
+        "roc_auc": 0.8473,
+        "business_impact": {
+          "fraud_detected_pct": 88.49,
+          "genuine_fast_tracked_pct": 66.38,
+          "flagged_for_investigation_pct": 36.92,
+          "missed_fraud_count": 16,
+          "genuine_claims_reviewed_count": 731
+        },
+        "classification_report": {
+          "Genuine (0)": {
+            "precision": 0.9890335846470185,
+            "recall": 0.6637534498620056,
+            "f1-score": 0.7943848059454995,
+            "support": 2174.0
+          },
+          "Fraud (1)": {
+            "precision": 0.14402810304449648,
+            "recall": 0.8848920863309353,
+            "f1-score": 0.24773413897280966,
+            "support": 139.0
+          },
+          "accuracy": 0.6770428015564203,
+          "macro avg": {
+            "precision": 0.5665308438457575,
+            "recall": 0.7743227680964704,
+            "f1-score": 0.5210594724591546,
+            "support": 2313.0
+          },
+          "weighted avg": {
+            "precision": 0.9382528834179866,
+            "recall": 0.6770428015564204,
+            "f1-score": 0.7615337714841057,
+            "support": 2313.0
+          }
+        }
+      },
+      "optimal_threshold": 0.61,
+      "optimal_metrics": {
+        "threshold": 0.61,
+        "total_claims": 2313,
+        "genuine_claims": 2174,
+        "fraud_claims": 139,
+        "fraud_prevalence": 0.0601,
+        "confusion_matrix": {
+          "true_negatives": 1889,
+          "false_positives": 285,
+          "false_negatives": 65,
+          "true_positives": 74
+        },
+        "precision": 0.2061,
+        "recall": 0.5324,
+        "f1_score": 0.2972,
+        "pr_auc": 0.2408,
+        "roc_auc": 0.8473,
+        "business_impact": {
+          "fraud_detected_pct": 53.24,
+          "genuine_fast_tracked_pct": 86.89,
+          "flagged_for_investigation_pct": 15.52,
+          "missed_fraud_count": 65,
+          "genuine_claims_reviewed_count": 285
+        },
+        "classification_report": {
+          "Genuine (0)": {
+            "precision": 0.9667349027635619,
+            "recall": 0.8689052437902484,
+            "f1-score": 0.9152131782945736,
+            "support": 2174.0
+          },
+          "Fraud (1)": {
+            "precision": 0.20612813370473537,
+            "recall": 0.5323741007194245,
+            "f1-score": 0.2971887550200803,
+            "support": 139.0
+          },
+          "accuracy": 0.8486813661910938,
+          "macro avg": {
+            "precision": 0.5864315182341486,
+            "recall": 0.7006396722548365,
+            "f1-score": 0.6062009666573269,
+            "support": 2313.0
+          },
+          "weighted avg": {
+            "precision": 0.921026151834389,
+            "recall": 0.8486813661910938,
+            "f1-score": 0.8780729297709442,
+            "support": 2313.0
+          }
+        }
+      }
+    },
+    "LogisticRegression": {
+      "default_0_5_metrics": {
+        "threshold": 0.5,
+        "total_claims": 2313,
+        "genuine_claims": 2174,
+        "fraud_claims": 139,
+        "fraud_prevalence": 0.0601,
+        "confusion_matrix": {
+          "true_negatives": 1382,
+          "false_positives": 792,
+          "false_negatives": 17,
+          "true_positives": 122
+        },
+        "precision": 0.1335,
+        "recall": 0.8777,
+        "f1_score": 0.2317,
+        "pr_auc": 0.1749,
+        "roc_auc": 0.8238,
+        "business_impact": {
+          "fraud_detected_pct": 87.77,
+          "genuine_fast_tracked_pct": 63.57,
+          "flagged_for_investigation_pct": 39.52,
+          "missed_fraud_count": 17,
+          "genuine_claims_reviewed_count": 792
+        },
+        "classification_report": {
+          "Genuine (0)": {
+            "precision": 0.9878484631879915,
+            "recall": 0.6356945722171113,
+            "f1-score": 0.7735796249650154,
+            "support": 2174.0
+          },
+          "Fraud (1)": {
+            "precision": 0.13347921225382933,
+            "recall": 0.8776978417266187,
+            "f1-score": 0.23171889838556506,
+            "support": 139.0
+          },
+          "accuracy": 0.6502377864245569,
+          "macro avg": {
+            "precision": 0.5606638377209104,
+            "recall": 0.756696206971865,
+            "f1-score": 0.5026492616752902,
+            "support": 2313.0
+          },
+          "weighted avg": {
+            "precision": 0.9365050451681693,
+            "recall": 0.6502377864245569,
+            "f1-score": 0.7410164425203359,
+            "support": 2313.0
+          }
+        }
+      },
+      "optimal_threshold": 0.6799999999999999,
+      "optimal_metrics": {
+        "threshold": 0.68,
+        "total_claims": 2313,
+        "genuine_claims": 2174,
+        "fraud_claims": 139,
+        "fraud_prevalence": 0.0601,
+        "confusion_matrix": {
+          "true_negatives": 1788,
+          "false_positives": 386,
+          "false_negatives": 53,
+          "true_positives": 86
+        },
+        "precision": 0.1822,
+        "recall": 0.6187,
+        "f1_score": 0.2815,
+        "pr_auc": 0.1749,
+        "roc_auc": 0.8238,
+        "business_impact": {
+          "fraud_detected_pct": 61.87,
+          "genuine_fast_tracked_pct": 82.24,
+          "flagged_for_investigation_pct": 20.41,
+          "missed_fraud_count": 53,
+          "genuine_claims_reviewed_count": 386
+        },
+        "classification_report": {
+          "Genuine (0)": {
+            "precision": 0.971211298207496,
+            "recall": 0.8224471021159153,
+            "f1-score": 0.8906600249066002,
+            "support": 2174.0
+          },
+          "Fraud (1)": {
+            "precision": 0.18220338983050846,
+            "recall": 0.6187050359712231,
+            "f1-score": 0.281505728314239,
+            "support": 139.0
+          },
+          "accuracy": 0.8102031993082577,
+          "macro avg": {
+            "precision": 0.5767073440190023,
+            "recall": 0.7205760690435692,
+            "f1-score": 0.5860828766104196,
+            "support": 2313.0
+          },
+          "weighted avg": {
+            "precision": 0.9237957775570848,
+            "recall": 0.8102031993082577,
+            "f1-score": 0.8540528276621826,
+            "support": 2313.0
+          }
+        }
+      }
+    }
+  },
+  "validation_selected_metrics": {
+    "threshold": 0.61,
+    "total_claims": 2313,
+    "genuine_claims": 2174,
+    "fraud_claims": 139,
+    "fraud_prevalence": 0.0601,
+    "confusion_matrix": {
+      "true_negatives": 1889,
+      "false_positives": 285,
+      "false_negatives": 65,
+      "true_positives": 74
+    },
+    "precision": 0.2061,
+    "recall": 0.5324,
+    "f1_score": 0.2972,
+    "pr_auc": 0.2408,
+    "roc_auc": 0.8473,
+    "business_impact": {
+      "fraud_detected_pct": 53.24,
+      "genuine_fast_tracked_pct": 86.89,
+      "flagged_for_investigation_pct": 15.52,
+      "missed_fraud_count": 65,
+      "genuine_claims_reviewed_count": 285
+    },
+    "classification_report": {
+      "Genuine (0)": {
+        "precision": 0.9667349027635619,
+        "recall": 0.8689052437902484,
+        "f1-score": 0.9152131782945736,
+        "support": 2174.0
+      },
+      "Fraud (1)": {
+        "precision": 0.20612813370473537,
+        "recall": 0.5323741007194245,
+        "f1-score": 0.2971887550200803,
+        "support": 139.0
+      },
+      "accuracy": 0.8486813661910938,
+      "macro avg": {
+        "precision": 0.5864315182341486,
+        "recall": 0.7006396722548365,
+        "f1-score": 0.6062009666573269,
+        "support": 2313.0
+      },
+      "weighted avg": {
+        "precision": 0.921026151834389,
+        "recall": 0.8486813661910938,
+        "f1-score": 0.8780729297709442,
+        "support": 2313.0
+      }
+    }
+  },
+  "test_metrics_selected_threshold": {
+    "threshold": 0.61,
+    "total_claims": 2313,
+    "genuine_claims": 2175,
+    "fraud_claims": 138,
+    "fraud_prevalence": 0.0597,
+    "confusion_matrix": {
+      "true_negatives": 1885,
+      "false_positives": 290,
+      "false_negatives": 74,
+      "true_positives": 64
+    },
+    "precision": 0.1808,
+    "recall": 0.4638,
+    "f1_score": 0.2602,
+    "pr_auc": 0.2319,
+    "roc_auc": 0.8062,
+    "business_impact": {
+      "fraud_detected_pct": 46.38,
+      "genuine_fast_tracked_pct": 86.67,
+      "flagged_for_investigation_pct": 15.3,
+      "missed_fraud_count": 74,
+      "genuine_claims_reviewed_count": 290
+    },
+    "classification_report": {
+      "Genuine (0)": {
+        "precision": 0.9622256253190403,
+        "recall": 0.8666666666666667,
+        "f1-score": 0.9119496855345912,
+        "support": 2175.0
+      },
+      "Fraud (1)": {
+        "precision": 0.1807909604519774,
+        "recall": 0.463768115942029,
+        "f1-score": 0.2601626016260163,
+        "support": 138.0
+      },
+      "accuracy": 0.8426286208387376,
+      "macro avg": {
+        "precision": 0.5715082928855089,
+        "recall": 0.6652173913043479,
+        "f1-score": 0.5860561435803038,
+        "support": 2313.0
+      },
+      "weighted avg": {
+        "precision": 0.9156030642504477,
+        "recall": 0.8426286208387376,
+        "f1-score": 0.8730622589978928,
+        "support": 2313.0
+      }
+    }
+  },
+  "test_metrics_default_0_5_threshold": {
+    "threshold": 0.5,
+    "total_claims": 2313,
+    "genuine_claims": 2175,
+    "fraud_claims": 138,
+    "fraud_prevalence": 0.0597,
+    "confusion_matrix": {
+      "true_negatives": 1414,
+      "false_positives": 761,
+      "false_negatives": 26,
+      "true_positives": 112
+    },
+    "precision": 0.1283,
+    "recall": 0.8116,
+    "f1_score": 0.2216,
+    "pr_auc": 0.2319,
+    "roc_auc": 0.8062,
+    "business_impact": {
+      "fraud_detected_pct": 81.16,
+      "genuine_fast_tracked_pct": 65.01,
+      "flagged_for_investigation_pct": 37.74,
+      "missed_fraud_count": 26,
+      "genuine_claims_reviewed_count": 761
+    },
+    "classification_report": {
+      "Genuine (0)": {
+        "precision": 0.9819444444444444,
+        "recall": 0.6501149425287356,
+        "f1-score": 0.7822959889349931,
+        "support": 2175.0
+      },
+      "Fraud (1)": {
+        "precision": 0.12829324169530354,
+        "recall": 0.8115942028985508,
+        "f1-score": 0.2215628090999011,
+        "support": 138.0
+      },
+      "accuracy": 0.6597492434068309,
+      "macro avg": {
+        "precision": 0.5551188430698739,
+        "recall": 0.7308545727136432,
+        "f1-score": 0.501929399017447,
+        "support": 2313.0
+      },
+      "weighted avg": {
+        "precision": 0.931013244280423,
+        "recall": 0.6597492434068309,
+        "f1-score": 0.7488410910459993,
+        "support": 2313.0
+      }
+    }
+  }
+}

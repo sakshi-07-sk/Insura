@@ -1,0 +1,76 @@
+{
+  "dataset_path": "data/raw/claims.csv",
+  "rows": 15420,
+  "columns": 33,
+  "target": {
+    "column": "FraudFound_P",
+    "found": true,
+    "value_counts": {
+      "0": 14497,
+      "1": 923
+    },
+    "distribution_percent": {
+      "0": 94.01,
+      "1": 5.99
+    },
+    "unique_values": [
+      "0",
+      "1"
+    ]
+  },
+  "duplicates": 0,
+  "missing_values": {},
+  "numeric_columns": [
+    "WeekOfMonth",
+    "WeekOfMonthClaimed",
+    "Age",
+    "FraudFound_P",
+    "PolicyNumber",
+    "RepNumber",
+    "Deductible",
+    "DriverRating",
+    "Year"
+  ],
+  "categorical_columns": [
+    "Month",
+    "DayOfWeek",
+    "Make",
+    "AccidentArea",
+    "DayOfWeekClaimed",
+    "MonthClaimed",
+    "Sex",
+    "MaritalStatus",
+    "Fault",
+    "PolicyType",
+    "VehicleCategory",
+    "VehiclePrice",
+    "Days_Policy_Accident",
+    "Days_Policy_Claim",
+    "PastNumberOfClaims",
+    "AgeOfVehicle",
+    "AgeOfPolicyHolder",
+    "PoliceReportFiled",
+    "WitnessPresent",
+    "AgentType",
+    "NumberOfSuppliments",
+    "AddressChange_Claim",
+    "NumberOfCars",
+    "BasePolicy"
+  ],
+  "identifier_candidates": [
+    "PolicyNumber"
+  ],
+  "operational_candidates": [
+    "RepNumber"
+  ],
+  "protected_candidates": [
+    "Sex",
+    "MaritalStatus"
+  ],
+  "leakage_candidates": [],
+  "anomalies": {
+    "Age_zero_count": 320,
+    "MonthClaimed_zero_count": 1,
+    "DayOfWeekClaimed_zero_count": 1
+  }
+}

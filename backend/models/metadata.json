@@ -1,0 +1,110 @@
+{
+  "model_version": "1.0.0",
+  "model_type": "RandomForest",
+  "training_timestamp": "2026-10-17T09:01:25.917195+00:00",
+  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "os_architecture": "AMD64",
+  "os_system": "Windows",
+  "package_versions": {
+    "scikit_learn": "1.9.0",
+    "numpy": "2.5.2",
+    "pandas": "3.0.5",
+    "joblib": "1.6.0"
+  },
+  "dataset_source": "data/raw/claims.csv",
+  "dataset_shape": {
+    "rows": 15420,
+    "columns": 33
+  },
+  "target_column": "FraudFound_P",
+  "label_mapping": {
+    "0": 0,
+    "1": 1
+  },
+  "features": {
+    "total_feature_count": 28,
+    "numeric_features": [
+      "WeekOfMonth",
+      "WeekOfMonthClaimed",
+      "Age",
+      "Deductible",
+      "DriverRating",
+      "Year"
+    ],
+    "categorical_features": [
+      "Month",
+      "DayOfWeek",
+      "Make",
+      "AccidentArea",
+      "DayOfWeekClaimed",
+      "MonthClaimed",
+      "Fault",
+      "PolicyType",
+      "VehicleCategory",
+      "VehiclePrice",
+      "Days_Policy_Accident",
+      "Days_Policy_Claim",
+      "PastNumberOfClaims",
+      "AgeOfVehicle",
+      "AgeOfPolicyHolder",
+      "PoliceReportFiled",
+      "WitnessPresent",
+      "AgentType",
+      "NumberOfSuppliments",
+      "AddressChange_Claim",
+      "NumberOfCars",
+      "BasePolicy"
+    ],
+    "transformed_feature_count": 138,
+    "feature_schema": {
+      "Month": "str",
+      "WeekOfMonth": "int64",
+      "DayOfWeek": "str",
+      "Make": "str",
+      "AccidentArea": "str",
+      "DayOfWeekClaimed": "str",
+      "MonthClaimed": "str",
+      "WeekOfMonthClaimed": "int64",
+      "Age": "float64",
+      "Fault": "str",
+      "PolicyType": "str",
+      "VehicleCategory": "str",
+      "VehiclePrice": "str",
+      "Deductible": "int64",
+      "DriverRating": "int64",
+      "Days_Policy_Accident": "str",
+      "Days_Policy_Claim": "str",
+      "PastNumberOfClaims": "str",
+      "AgeOfVehicle": "str",
+      "AgeOfPolicyHolder": "str",
+      "PoliceReportFiled": "str",
+      "WitnessPresent": "str",
+      "AgentType": "str",
+      "NumberOfSuppliments": "str",
+      "AddressChange_Claim": "str",
+      "NumberOfCars": "str",
+      "Year": "int64",
+      "BasePolicy": "str"
+    }
+  },
+  "excluded_columns": [
+    "PolicyNumber",
+    "RepNumber",
+    "Sex",
+    "MaritalStatus"
+  ],
+  "train_val_test_counts": {
+    "train": 10794,
+    "val": 2313,
+    "test": 2313
+  },
+  "selected_threshold": 0.61,
+  "threshold_policy": {
+    "risk_categories": {
+      "LOW": "risk_score < 42.7",
+      "MEDIUM": "42.7 <= risk_score < 61.0",
+      "HIGH": "risk_score >= 61.0 (flag for human investigation)"
+    },
+    "selection_justification": "Threshold selected on validation data to maximize F1-score and ensure at least 50% recall for fraud detection in an imbalanced setting."
+  }
+}
