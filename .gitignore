@@ -58,6 +58,11 @@ data/processed/*
 backend/models/*.joblib
 !backend/models/.gitkeep
 
+# Local databases
+*.db
+*.sqlite3
+*.sqlite
+
 # Operating System files
 .DS_Store
 Thumbs.db

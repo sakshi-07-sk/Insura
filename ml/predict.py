@@ -25,13 +25,38 @@ DEFAULT_METADATA_PATH = os.path.join(
     "metadata.json",
 )
 
+# Exception classes for structured API error handling
+class ModelNotLoadedError(FileNotFoundError, RuntimeError):
+    """Raised when scoring is attempted while the model artifact is missing or not loaded."""
+
+
+class InvalidFeatureError(ValueError):
+    """Raised when claim input features fail schema validation."""
+
+
+class PredictionError(RuntimeError):
+    """Raised when an internal error occurs during model inference."""
+
+
 # Global memory cache for loaded pipeline and metadata
 _CACHED_MODEL = None
 _CACHED_METADATA = None
 
 
+def is_model_ready(model_path: Optional[str] = None) -> bool:
+    """Checks whether the model pipeline is loaded or available on disk."""
+    global _CACHED_MODEL
+    if _CACHED_MODEL is not None:
+        return True
+    path = model_path or DEFAULT_MODEL_PATH
+    return os.path.exists(path)
+
+
 def load_model(
-    model_path: Optional[str] = None, metadata_path: Optional[str] = None
+    model_path: Optional[str] = None,
+    metadata_path: Optional[str] = None,
+    artifact_path: Optional[str] = None,
+    allow_mock: bool = False,
 ) -> Tuple[Any, Dict[str, Any]]:
     """Loads and caches the fitted scikit-learn pipeline and associated metadata.
 
@@ -41,6 +66,10 @@ def load_model(
         Path to risk_model.joblib (default: backend/models/risk_model.joblib).
     metadata_path : str, optional
         Path to metadata.json (default: backend/models/metadata.json).
+    artifact_path : str, optional
+        Alias for model_path.
+    allow_mock : bool, optional
+        Whether to permit mock fallback if model artifact is missing.
 
     Returns
     -------
@@ -48,14 +77,16 @@ def load_model(
     """
     global _CACHED_MODEL, _CACHED_METADATA
 
-    resolved_model_path = model_path or DEFAULT_MODEL_PATH
+    resolved_model_path = model_path or artifact_path or DEFAULT_MODEL_PATH
     resolved_meta_path = metadata_path or DEFAULT_METADATA_PATH
 
     if _CACHED_MODEL is not None and _CACHED_METADATA is not None and model_path is None:
         return _CACHED_MODEL, _CACHED_METADATA
 
     if not os.path.exists(resolved_model_path):
-        raise FileNotFoundError(
+        if allow_mock:
+            return None, {}
+        raise ModelNotLoadedError(
             f"Model artifact not found at: {resolved_model_path}. "
             "Please run 'python backend/training/train_model.py' first."
         )
