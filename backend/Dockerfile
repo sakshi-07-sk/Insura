@@ -28,11 +28,12 @@ COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /app/backend/requirements.txt
 
-# Copy application code and ML inference module
+# Copy application code, ML inference module, and trained model artifacts
 COPY backend/app /app/backend/app
+COPY backend/models /app/backend/models
 COPY ml /app/ml
 
-# Create data directory for SQLite fallback or local artifacts and set permissions
+# Create data directory for SQLite database persistence and set permissions
 RUN mkdir -p /app/data /app/ml/artifacts && \
     chown -R appuser:appuser /app
 

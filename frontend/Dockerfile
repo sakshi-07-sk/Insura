@@ -2,8 +2,8 @@
 # Architecture Target: IBM LinuxONE (s390x) & x86_64
 # Compatible with multi-arch docker buildx
 
-# Stage 1: Build static assets with Node.js
-FROM node:20-alpine AS builder
+# Stage 1: Build static assets with Node.js (Debian slim has full s390x/IBM Z support)
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
@@ -19,8 +19,8 @@ COPY . .
 # Build production bundle into /app/dist
 RUN npm run build
 
-# Stage 2: Serve static production assets via lightweight Nginx
-FROM nginx:1.25-alpine
+# Stage 2: Serve static production assets via lightweight Nginx (multi-arch s390x compatible)
+FROM nginx:bookworm-slim
 
 # Remove default nginx html
 RUN rm -rf /usr/share/nginx/html/*
