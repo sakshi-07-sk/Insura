@@ -11,10 +11,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     PORT=8000
 
-# Install minimal OS dependencies for network health checks and building
+# Install minimal OS dependencies for network health checks and building on s390x
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gcc \
+    g++ \
+    build-essential \
+    python3-dev \
+    gfortran \
+    libopenblas-dev \
+    liblapack-dev \
+    pkg-config \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,7 +32,7 @@ WORKDIR /app
 
 # Install Python dependencies first for caching
 COPY backend/requirements.txt /app/backend/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r /app/backend/requirements.txt
 
 # Copy application code, ML inference module, and trained model artifacts
