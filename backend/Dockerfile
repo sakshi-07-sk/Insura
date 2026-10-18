@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pydantic \
     python3-sqlalchemy \
     python3-dotenv \
+    python3-matplotlib \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
