@@ -31,8 +31,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pydantic-settings and test dependencies
-RUN pip install --no-cache-dir --break-system-packages pydantic-settings httpx pytest
+# Install pydantic-settings and test dependencies with ignore-installed
+RUN pip install --no-cache-dir --break-system-packages --ignore-installed pydantic-settings httpx pytest
 
 # Create dedicated non-root application user
 RUN useradd -r -d /app -s /sbin/nologin appuser
