@@ -128,22 +128,23 @@ export function Topbar({ onOpenSidebar }) {
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2, margin: 0 }}>
+              <h1 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2, margin: 0 }}>
                 {pageTitle}
               </h1>
-              <span style={{
+              <span className="role-tag-pill" style={{
                 fontSize: '10px',
                 fontWeight: 700,
                 padding: '2px 8px',
                 borderRadius: '12px',
                 background: currentRoleDetails.bg,
-                color: currentRoleDetails.color
+                color: currentRoleDetails.color,
+                whiteSpace: 'nowrap'
               }}>
                 {currentRoleDetails.name}
               </span>
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Real-Time Insurance Claim Risk Scoring • IBM LinuxONE s390x
+            <div className="topbar-subtitle" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+              Real-Time Insurance Claim Risk Scoring • LinuxONE s390x
             </div>
           </div>
         </div>
@@ -186,10 +187,11 @@ export function Topbar({ onOpenSidebar }) {
         </form>
 
         {/* Right: Role Switcher & API Status */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {/* Connection Status Indicator */}
           <button
             onClick={() => setShowStatusModal(true)}
+            className="topbar-status-btn"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -208,7 +210,8 @@ export function Topbar({ onOpenSidebar }) {
                 connStatus === 'connected' ? 'var(--risk-low-border)' :
                 connStatus === 'unavailable' ? 'var(--risk-high-border)' : 'var(--risk-med-border)'
               }`,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
             }}
             title="Click to view API service diagnostics"
           >
@@ -223,8 +226,8 @@ export function Topbar({ onOpenSidebar }) {
                 animation: connStatus === 'checking' ? 'pulse 1.5s infinite' : 'none'
               }}
             />
-            <span style={{ textTransform: 'capitalize' }}>
-              {connStatus === 'connected' ? 'API Live (s390x)' : connStatus === 'unavailable' ? 'API Offline' : 'Connecting...'}
+            <span className="status-text" style={{ textTransform: 'capitalize' }}>
+              {connStatus === 'connected' ? 'API Live' : connStatus === 'unavailable' ? 'API Offline' : 'Connecting...'}
             </span>
           </button>
 
@@ -234,15 +237,15 @@ export function Topbar({ onOpenSidebar }) {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              paddingLeft: '12px',
+              paddingLeft: '10px',
               borderLeft: '1px solid var(--border-light)'
             }}
             className="reviewer-profile-box"
           >
             <div 
               style={{
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 borderRadius: '50%',
                 backgroundColor: currentRoleDetails.bg,
                 color: currentRoleDetails.color,
@@ -250,20 +253,22 @@ export function Topbar({ onOpenSidebar }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 700,
-                fontSize: '12px'
+                fontSize: '11px',
+                flexShrink: 0
               }}
             >
               {user?.initials || 'U'}
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
-                  Active Role:
+              <div className="role-switcher-label" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '9px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
+                  Role:
                 </span>
               </div>
               <select
                 value={role || ROLES.CLAIMS_OFFICER}
                 onChange={handleRoleChange}
+                className="role-switcher-select"
                 style={{
                   border: 'none',
                   background: 'transparent',
@@ -272,14 +277,15 @@ export function Topbar({ onOpenSidebar }) {
                   color: 'var(--text-primary)',
                   cursor: 'pointer',
                   padding: 0,
-                  outline: 'none'
+                  outline: 'none',
+                  maxWidth: '130px'
                 }}
                 title="Switch active role workspace"
               >
-                <option value={ROLES.ADMIN}>Admin (Sarah Chen)</option>
-                <option value={ROLES.CLAIMS_OFFICER}>Claims Officer (Marcus Vance)</option>
-                <option value={ROLES.INVESTIGATOR}>Investigator (Elena Rostova)</option>
-                <option value={ROLES.ANALYST}>Analyst (David Okafor)</option>
+                <option value={ROLES.ADMIN}>Admin</option>
+                <option value={ROLES.CLAIMS_OFFICER}>Claims Officer</option>
+                <option value={ROLES.INVESTIGATOR}>Investigator</option>
+                <option value={ROLES.ANALYST}>Analyst</option>
               </select>
             </div>
           </div>
@@ -411,13 +417,30 @@ export function Topbar({ onOpenSidebar }) {
         }
         @media (max-width: 1023px) {
           .mobile-hamburger {
-            display: block !important;
+            display: flex !important;
           }
           .search-container {
             display: none !important;
           }
-          .reviewer-profile-box {
+        }
+        @media (max-width: 640px) {
+          header {
+            padding: 0 12px !important;
+          }
+          .topbar-subtitle {
             display: none !important;
+          }
+          .role-tag-pill {
+            display: none !important;
+          }
+          .role-switcher-label {
+            display: none !important;
+          }
+          .status-text {
+            display: none !important;
+          }
+          .topbar-status-btn {
+            padding: 6px !important;
           }
         }
       `}</style>

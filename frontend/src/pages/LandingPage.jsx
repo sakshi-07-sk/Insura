@@ -201,7 +201,7 @@ export function LandingPage() {
       </nav>
 
       {/* 2. HERO SECTION */}
-      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 24px 60px', position: 'relative' }}>
+      <section className="hero-section" style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 24px 60px', position: 'relative' }}>
         
         {/* Glow Spheres */}
         <div style={{
@@ -247,7 +247,7 @@ export function LandingPage() {
             </div>
 
             <h1 style={{
-              fontSize: '48px',
+              fontSize: 'clamp(32px, 5vw, 50px)',
               fontWeight: 800,
               lineHeight: 1.15,
               color: '#ffffff',
@@ -414,7 +414,7 @@ export function LandingPage() {
             </div>
 
             {/* Floating Top Card */}
-            <div className="animate-float" style={{
+            <div className="animate-float floating-card-left" style={{
               position: 'absolute',
               top: '-20px',
               left: '-20px',
@@ -438,7 +438,7 @@ export function LandingPage() {
             </div>
 
             {/* Floating Bottom-Right Card */}
-            <div className="animate-float-reverse" style={{
+            <div className="animate-float-reverse floating-card-right" style={{
               position: 'absolute',
               bottom: '40px',
               right: '-25px',
@@ -518,7 +518,7 @@ export function LandingPage() {
                 {currentPreset.title}
               </h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '14px' }}>
                 <div style={{ background: 'rgba(6, 11, 20, 0.5)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.08)' }}>
                   <div style={{ fontSize: '11px', color: '#64748b' }}>Insured Vehicle</div>
                   <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '2px' }}>{currentPreset.vehicle}</div>
@@ -958,6 +958,37 @@ export function LandingPage() {
         </div>
       </footer>
 
+      <style>{`
+        @media (max-width: 1024px) {
+          .desktop-nav {
+            display: none !important;
+          }
+          .mobile-burger {
+            display: flex !important;
+          }
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+        }
+        @media (max-width: 800px) {
+          .sim-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .floating-card-left, .floating-card-right {
+            display: none !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .hero-section {
+            padding: 40px 16px 30px !important;
+          }
+          .glass-panel-glow {
+            padding: 20px 14px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

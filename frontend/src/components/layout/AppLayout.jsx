@@ -62,6 +62,7 @@ export function AppLayout() {
         <Topbar onOpenSidebar={() => setSidebarOpen(true)} />
 
         <main 
+          className="main-content-area"
           style={{
             flex: 1,
             padding: '24px',
@@ -102,6 +103,11 @@ export function AppLayout() {
         @media (max-width: 1023px) {
           .main-layout-wrapper {
             margin-left: 0 !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .main-content-area {
+            padding: 16px 12px !important;
           }
         }
       `}</style>

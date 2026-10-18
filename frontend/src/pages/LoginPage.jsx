@@ -305,8 +305,7 @@ export function LoginPage() {
           <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
         </div>
 
-        {/* Quick Demo Access Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))', gap: '10px' }}>
           {DEMO_ACCOUNTS.map((acc) => {
             const details = ROLE_DETAILS[acc.role];
             return (

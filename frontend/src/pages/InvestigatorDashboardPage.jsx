@@ -212,7 +212,7 @@ export function InvestigatorDashboardPage() {
       </div>
 
       {/* Two-Pane Workspace: Left Queue, Right Dossier */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 1fr) minmax(460px, 1.4fr)', gap: '20px' }}>
+      <div className="siu-workspace-grid">
         {/* Left: Flagged Claims Queue */}
         <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
@@ -446,6 +446,19 @@ export function InvestigatorDashboardPage() {
           </div>
         )}
       </div>
+
+      <style>{`
+        .siu-workspace-grid {
+          display: grid;
+          grid-template-columns: minmax(320px, 1fr) minmax(440px, 1.4fr);
+          gap: 20px;
+        }
+        @media (max-width: 960px) {
+          .siu-workspace-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
