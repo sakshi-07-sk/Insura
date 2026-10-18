@@ -5,23 +5,20 @@
 
 FROM python:3.11-slim as runtime
 
-# Prevent Python from writing .pyc files and enable unbuffered output
+# Prevent Python from writing .pyc files, enable unbuffered output, and include Debian precompiled packages
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
+    PYTHONPATH=/usr/lib/python3/dist-packages:/app \
     PORT=8000
 
-# Install minimal OS dependencies for network health checks and building on s390x
+# Install precompiled s390x ML binaries directly from Debian (zero source compilation)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    gcc \
-    g++ \
-    build-essential \
-    python3-dev \
-    gfortran \
-    libopenblas-dev \
-    liblapack-dev \
-    pkg-config \
+    python3-numpy \
+    python3-scipy \
+    python3-pandas \
+    python3-sklearn \
+    python3-joblib \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -30,7 +27,7 @@ RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuse
 
 WORKDIR /app
 
-# Install Python dependencies first for caching
+# Install pure-Python web API dependencies (fastapi, uvicorn, pydantic, sqlalchemy)
 COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r /app/backend/requirements.txt
