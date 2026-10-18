@@ -1,36 +1,43 @@
 # ==============================================================================
 # Multi-Architecture Dockerfile for IBM LinuxONE (s390x) & x86_64
 # Insurance Claim Risk Scoring Backend - IBM Z Datathon 2026
+# Uses Ubuntu 24.04 LTS with native s390x Python 3.12 precompiled ML packages
 # ==============================================================================
 
-FROM python:3.11-slim as runtime
+FROM ubuntu:24.04 as runtime
 
-# Prevent Python from writing .pyc files, enable unbuffered output, and include Debian precompiled packages
-ENV PYTHONDONTWRITEBYTECODE=1 \
+# Prevent interactive prompts and Python byte-compilation
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/usr/lib/python3/dist-packages:/app \
+    PYTHONPATH=/app \
     PORT=8000
 
-# Install precompiled s390x ML binaries directly from Debian (zero source compilation)
+# Install precompiled s390x binary packages directly from Ubuntu repositories
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    python3 \
+    python3-pip \
     python3-numpy \
     python3-scipy \
     python3-pandas \
     python3-sklearn \
     python3-joblib \
+    python3-fastapi \
+    python3-uvicorn \
+    python3-pydantic \
+    python3-sqlalchemy \
+    python3-dotenv \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install pydantic-settings and test dependencies
+RUN pip install --no-cache-dir --break-system-packages pydantic-settings httpx pytest
+
 # Create dedicated non-root application user
-RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+RUN useradd -r -d /app -s /sbin/nologin appuser
 
 WORKDIR /app
-
-# Install pure-Python web API dependencies (fastapi, uvicorn, pydantic, sqlalchemy)
-COPY backend/requirements.txt /app/backend/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r /app/backend/requirements.txt
 
 # Copy application code, ML inference module, and trained model artifacts
 COPY backend/app /app/backend/app

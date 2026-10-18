@@ -84,6 +84,8 @@ else
     echo "--- Launching Backend Service ---"
     ${CONTAINER_CMD} run -d \
         --name insura-backend \
+        --network-alias backend \
+        --network-alias insura-backend \
         --network insura-net \
         --restart unless-stopped \
         -e APP_ENV=production \
@@ -99,6 +101,7 @@ else
     echo "--- Launching Frontend Service (Nginx) ---"
     ${CONTAINER_CMD} run -d \
         --name insura-frontend \
+        --network-alias frontend \
         --network insura-net \
         --restart unless-stopped \
         -p 8080:80 \
