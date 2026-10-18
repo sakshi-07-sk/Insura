@@ -374,7 +374,7 @@ export function LoginPage() {
 
       {/* Footer Info */}
       <div style={{ marginTop: '32px', textAlign: 'center', fontSize: '12px', color: '#64748b', display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <span>IBM Z Datathon 2026</span>
+        <span>INSURA Platform</span>
         <span>•</span>
         <span>LinuxONE s390x Native</span>
         <span>•</span>

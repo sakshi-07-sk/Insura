@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# LinuxONE (s390x) Automated Deployment Script - IBM Z Datathon 2026
+# LinuxONE (s390x) Automated Deployment Script - INSURA
 # Supports: Podman 5.x (native RHEL rootless), Podman Compose, or Docker
 # ==============================================================================
 
@@ -88,6 +88,7 @@ else
         --network-alias insura-backend \
         --network insura-net \
         --restart unless-stopped \
+        -p 8000:8000 \
         -e APP_ENV=production \
         -e DATABASE_URL=sqlite:////app/data/claims.db \
         -e MODEL_ARTIFACT_PATH=backend/models/risk_model.joblib \

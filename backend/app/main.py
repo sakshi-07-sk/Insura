@@ -70,9 +70,9 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description=(
-        "IBM Z Datathon 2026: Real-Time Insurance Claim Risk Scoring Platform.\n\n"
+        "INSURA: Real-Time Insurance Claim Risk Scoring & Fraud Intelligence Platform.\n\n"
         "Connects frontend claim adjusters to machine-learning fraud detection models "
-        "deployed on IBM LinuxONE (s390x) architecture.\n\n"
+        "deployed on LinuxONE (s390x) architecture.\n\n"
         "Key Capabilities:\n"
         "- Real-Time ML Risk Assessment (Fraud Probability & 0-100 Risk Score)\n"
         "- Human-in-the-Loop Review Workflow (Pending, Under Review, Cleared, Escalated)\n"

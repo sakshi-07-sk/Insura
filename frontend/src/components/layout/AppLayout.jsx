@@ -90,7 +90,7 @@ export function AppLayout() {
           }}
         >
           <div>
-            <strong>IBM Z Datathon 2026</strong> — Real-Time Insurance Claim Risk Scoring & Fraud Triage Engine
+            <strong>INSURA Risk Intelligence</strong> — Real-Time Insurance Claim Scoring & Fraud Triage Engine
           </div>
           <div>
             AI-generated risk scores are decision-support indicators, not proof of fraud. Final claim decisions require appropriate human review.

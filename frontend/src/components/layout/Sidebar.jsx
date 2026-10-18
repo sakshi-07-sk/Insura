@@ -107,7 +107,7 @@ export function Sidebar({ isOpen, onClose }) {
                 INSURA <span style={{ fontSize: '9px', color: '#06b6d4', padding: '1px 5px', background: 'rgba(6,182,212,0.15)', borderRadius: '10px', border: '1px solid rgba(6,182,212,0.3)', fontWeight: 700 }}>s390x</span>
               </div>
               <div style={{ fontSize: '9px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                IBM Z Datathon 2026
+                ENTERPRISE PLATFORM
               </div>
             </div>
           </Link>

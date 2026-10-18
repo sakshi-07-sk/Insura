@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Smoke Test & End-to-End Verification Script - IBM Z Datathon 2026
+# Smoke Test & End-to-End Verification Script - INSURA Platform
 # Tests: Health, Model Inference, Schema Validation, Claim Persistence, Routing
 # ==============================================================================
 

@@ -208,7 +208,7 @@ export function SettingsPage() {
                 Enable Offline Mock Mode (Development Only)
               </label>
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
-                When enabled, the frontend serves isolated synthetic demonstration records even if Member 2's backend is unreachable. <strong>Disabled by default</strong> for integrated datathon evaluation. An explicit yellow banner will be displayed across the dashboard when mock mode is active.
+                When enabled, the frontend serves isolated synthetic demonstration records even if Member 2's backend is unreachable. <strong>Disabled by default</strong> for integrated production evaluation. An explicit yellow banner will be displayed across the dashboard when mock mode is active.
               </p>
             </div>
           </div>

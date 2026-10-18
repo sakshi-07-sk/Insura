@@ -122,7 +122,7 @@ export function ReviewCenterPage() {
           <span>Ethical & Operational Workflow Guarantee</span>
         </div>
         <p style={{ marginTop: '4px' }}>
-          Under our IBM Z Datathon architecture, AI scores prioritize human investigator review rather than generating automated rejections. Claims marked <strong>HIGH RISK</strong> are routed to this queue for manual audit before any payout denial or escalation occurs.
+          Under our enterprise AI architecture, AI scores prioritize human investigator review rather than generating automated rejections. Claims marked <strong>HIGH RISK</strong> are routed to this queue for manual audit before any payout denial or escalation occurs.
         </p>
       </div>
 

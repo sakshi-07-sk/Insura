@@ -61,7 +61,7 @@ class Settings(BaseSettings):
         description="Whether to enforce API key / token validation on reviewer endpoints",
     )
     API_KEY: str = Field(
-        default="demo-datathon-secret-key-2026",
+        default="demo-insura-secret-key-2026",
         description="Internal reviewer secret key when authentication is enforced",
     )
     CORS_ORIGINS: Union[List[str], str] = Field(

@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Native Deployment Alternative (Without Containers) - IBM Z Datathon 2026
+# Native Deployment Alternative (Without Containers) - INSURA
 # Runs FastAPI Backend natively with Uvicorn and serves prebuilt React bundle
 # ==============================================================================
 

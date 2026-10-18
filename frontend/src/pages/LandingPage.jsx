@@ -243,7 +243,7 @@ export function LandingPage() {
               marginBottom: '24px',
             }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00f2fe', display: 'inline-block', boxShadow: '0 0 10px #00f2fe' }} />
-              IBM Z Datathon 2026 • Live on IBM LinuxONE (`s390x`)
+              Enterprise AI • Live on LinuxONE (`s390x`)
             </div>
 
             <h1 style={{
@@ -941,7 +941,7 @@ export function LandingPage() {
               INSURA<span style={{ color: '#00f2fe' }}>.AI</span>
             </div>
             <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-              Real-Time Insurance Claim Risk Scoring • IBM Z Datathon 2026
+              Real-Time Insurance Claim Risk Scoring & Fraud Intelligence
             </div>
           </div>
 
