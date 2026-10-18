@@ -30,7 +30,7 @@ export function LoginPage() {
 
   const from = location.state?.from?.pathname;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -40,26 +40,31 @@ export function LoginPage() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      try {
-        const logged = login(email, password);
-        const destination = from || ROLE_DETAILS[logged.role]?.defaultRoute || '/claims/dashboard';
-        navigate(destination, { replace: true });
-      } catch (err) {
-        setError('Authentication failed. Please verify credentials.');
-      } finally {
-        setLoading(false);
-      }
-    }, 400);
+    try {
+      const logged = await login(email, password);
+      const destination = from || ROLE_DETAILS[logged.role]?.defaultRoute || '/claims/dashboard';
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setError('Authentication failed. Please verify credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleQuickDemo = (account) => {
+  const handleQuickDemo = async (account) => {
     setEmail(account.email);
     setPassword('demo1234');
     setError('');
-    const logged = login(account.email, 'demo1234', account.role);
-    const destination = from || ROLE_DETAILS[logged.role]?.defaultRoute || '/claims/dashboard';
-    navigate(destination, { replace: true });
+    setLoading(true);
+    try {
+      const logged = await login(account.email, 'demo1234', account.role);
+      const destination = from || ROLE_DETAILS[logged.role]?.defaultRoute || '/claims/dashboard';
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setError('Demo login failed.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

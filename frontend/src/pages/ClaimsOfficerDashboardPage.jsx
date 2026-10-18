@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileStack, 
@@ -14,7 +15,11 @@ import {
   Zap,
   ChevronRight,
   ShieldCheck,
-  Eye
+  Eye,
+  Bell,
+  Layers,
+  Activity,
+  ArrowRight
 } from 'lucide-react';
 import { api } from '../services/api';
 import { RiskBadge, StatusBadge } from '../components/common/Badge';
@@ -163,28 +168,46 @@ export function ClaimsOfficerDashboardPage() {
     return matchesSearch && matchesRisk;
   });
 
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const isSubmitView = currentPath === '/claims/submit';
+  const isMyClaimsView = currentPath === '/claims/my-claims';
+  const isStatusView = currentPath === '/claims/status';
+  const isNotificationsView = currentPath === '/claims/notifications';
+  const isOverview = !isSubmitView && !isMyClaimsView && !isStatusView && !isNotificationsView;
+
+  useEffect(() => {
+    if (isSubmitView) {
+      setShowSubmitModal(true);
+    }
+  }, [isSubmitView]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Page Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Claims Intake & Triage Workspace
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+              {isSubmitView ? 'Submit New Insurance Claim' :
+               isMyClaimsView ? 'My Claims Intake Queue' :
+               isStatusView ? 'Claim Processing & Settlement Pipeline' :
+               isNotificationsView ? 'Claims Alerts & Decision Notifications' :
+               'Claims Intake & Triage Workspace'}
             </h1>
             <span style={{ 
               background: 'rgba(16, 185, 129, 0.15)', 
               color: '#10b981', 
               fontSize: '11px', 
               fontWeight: 700, 
-              padding: '3px 8px', 
+              padding: '3px 10px', 
               borderRadius: '20px', 
               border: '1px solid rgba(16, 185, 129, 0.3)' 
             }}>
               Claims Officer Role
             </span>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '6px 0 0' }}>
             Submit claims, score risk in real time, and triage payouts using IBM LinuxONE inference
           </p>
         </div>
@@ -202,10 +225,10 @@ export function ClaimsOfficerDashboardPage() {
               gap: '8px',
               background: 'linear-gradient(135deg, #06b6d4, #2563eb)',
               border: 'none',
-              padding: '9px 18px',
+              padding: '10px 18px',
               borderRadius: '8px',
               color: '#ffffff',
-              fontSize: '13px',
+              fontSize: '14px',
               fontWeight: 600,
               cursor: 'pointer',
               boxShadow: '0 4px 12px rgba(6, 182, 212, 0.35)'
@@ -223,17 +246,54 @@ export function ClaimsOfficerDashboardPage() {
               gap: '6px',
               background: 'var(--bg-card)',
               border: '1px solid var(--border-light)',
-              padding: '9px 14px',
+              padding: '10px 14px',
               borderRadius: '8px',
               color: 'var(--text-primary)',
-              fontSize: '13px',
+              fontSize: '14px',
               fontWeight: 600,
               cursor: 'pointer'
             }}
           >
-            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+            <RefreshCw size={15} className={isRefreshing ? 'animate-spin' : ''} />
           </button>
         </div>
+      </div>
+
+      {/* Sub-Navigation Tabs */}
+      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+        {[
+          { path: '/claims/dashboard', label: 'Overview', icon: Layers },
+          { path: '/claims/submit', label: 'Submit Claim', icon: PlusCircle },
+          { path: '/claims/my-claims', label: 'My Claims', icon: FileStack },
+          { path: '/claims/status', label: 'Claim Status', icon: CheckCircle2 },
+          { path: '/claims/notifications', label: 'Notifications', icon: Bell },
+        ].map(tab => {
+          const Icon = tab.icon;
+          const isActive = currentPath === tab.path || (tab.path === '/claims/dashboard' && isOverview);
+          return (
+            <Link
+              key={tab.path}
+              to={tab.path}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: isActive ? '#10b981' : '#94a3b8',
+                backgroundColor: isActive ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                border: isActive ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(255, 255, 255, 0.06)',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Icon size={15} />
+              <span>{tab.label}</span>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Intake KPI Cards */}

@@ -28,7 +28,7 @@ export function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -54,16 +54,14 @@ export function SignupPage() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      try {
-        const newUser = signup(fullName.trim(), email.trim(), password);
-        navigate('/claims/dashboard', { replace: true });
-      } catch (err) {
-        setError('Signup failed. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    }, 450);
+    try {
+      const newUser = await signup(fullName.trim(), email.trim(), password);
+      navigate('/claims/dashboard', { replace: true });
+    } catch (err) {
+      setError(err.message || 'Signup failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

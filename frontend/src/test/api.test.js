@@ -12,8 +12,8 @@ describe('ClaimGuard API Client & Configuration', () => {
     localStorage.clear();
   });
 
-  it('defaults to http://localhost:8000 when no environment or local override is provided', () => {
-    expect(getApiBaseUrl()).toBe('http://localhost:8000');
+  it('defaults to /api when no environment or local override is provided', () => {
+    expect(getApiBaseUrl()).toBe('/api');
   });
 
   it('allows dynamic base URL configuration and removes trailing slashes', () => {

@@ -2,22 +2,13 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
-import { isMockModeEnabled, setMockModeEnabled } from '../../services/api';
-import { AlertTriangle } from 'lucide-react';
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mockActive, setMockActive] = useState(isMockModeEnabled());
-
-  const handleDisableMock = () => {
-    setMockModeEnabled(false);
-    setMockActive(false);
-    window.location.reload();
-  };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-app)' }}>
-      {/* Persistent / Responsive Sidebar */}
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-app)', color: 'var(--text-primary)' }}>
+      {/* Persistent / Responsive Role-Specific Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content Area */}
@@ -28,37 +19,11 @@ export function AppLayout() {
           flexDirection: 'column',
           minWidth: 0,
           marginLeft: 'var(--sidebar-width)',
+          minHeight: '100vh',
           transition: 'margin-left var(--transition-normal)'
         }}
         className="main-layout-wrapper"
       >
-        {/* Mock Mode Explicit Warning Banner */}
-        {mockActive && (
-          <div className="demo-banner" role="status">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AlertTriangle size={16} />
-              <span>
-                <strong>DEMO DATA MODE ACTIVE:</strong> The application is currently displaying isolated synthetic test data. Real model predictions require connecting to Member 2's backend.
-              </span>
-            </div>
-            <button 
-              onClick={handleDisableMock}
-              style={{
-                background: '#ffffff',
-                border: '1px solid #fde68a',
-                padding: '4px 10px',
-                borderRadius: '4px',
-                fontSize: '11px',
-                fontWeight: 600,
-                color: '#92400e',
-                cursor: 'pointer'
-              }}
-            >
-              Switch to Live API
-            </button>
-          </div>
-        )}
-
         <Topbar onOpenSidebar={() => setSidebarOpen(true)} />
 
         <main 
@@ -79,10 +44,10 @@ export function AppLayout() {
         <footer 
           style={{
             padding: '16px 24px',
-            backgroundColor: '#ffffff',
-            borderTop: '1px solid var(--border-light)',
-            fontSize: '11px',
-            color: 'var(--text-muted)',
+            backgroundColor: '#070d19',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            fontSize: '12px',
+            color: '#64748b',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
@@ -90,11 +55,15 @@ export function AppLayout() {
             gap: '12px'
           }}
         >
-          <div>
-            <strong>INSURA Risk Intelligence</strong> — Real-Time Insurance Claim Scoring & Fraud Triage Engine
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <strong style={{ color: '#94a3b8' }}>INSURA Platform</strong>
+            <span>•</span>
+            <span>Real-Time Insurance Claim Scoring & Fraud Triage Engine</span>
+            <span>•</span>
+            <span style={{ color: '#06b6d4' }}>IBM LinuxONE (s390x)</span>
           </div>
           <div>
-            AI-generated risk scores are decision-support indicators, not proof of fraud. Final claim decisions require appropriate human review.
+            AI-generated risk scores are decision-support indicators. Final determinations require authorized human review.
           </div>
         </footer>
       </div>
@@ -103,11 +72,6 @@ export function AppLayout() {
         @media (max-width: 1023px) {
           .main-layout-wrapper {
             margin-left: 0 !important;
-          }
-        }
-        @media (max-width: 768px) {
-          .main-content-area {
-            padding: 16px 12px !important;
           }
         }
       `}</style>

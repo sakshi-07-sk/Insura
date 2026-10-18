@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   BarChart3, 
@@ -11,7 +12,11 @@ import {
   CheckCircle2, 
   Layers, 
   RefreshCw,
-  Info
+  Info,
+  PieChart,
+  Gauge,
+  SearchCheck,
+  FileText
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -87,6 +92,16 @@ export function AnalystDashboardPage() {
   const curMetrics = selectedThreshold === 'optimal' ? METRICS_DATA.optimal_metrics : METRICS_DATA.default_metrics;
   const cm = curMetrics.confusion_matrix;
 
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const isDistributionView = currentPath === '/analyst/distribution';
+  const isPerformanceView = currentPath === '/analyst/performance';
+  const isTrendsView = currentPath === '/analyst/trends';
+  const isFalsePositivesView = currentPath === '/analyst/false-positives';
+  const isFairnessView = currentPath === '/analyst/fairness';
+  const isReportsView = currentPath === '/analyst/reports';
+  const isOverview = !isDistributionView && !isPerformanceView && !isTrendsView && !isFalsePositivesView && !isFairnessView && !isReportsView;
+
   useEffect(() => {
     api.getModelInfo().then(setLiveInfo).catch(() => {});
   }, []);
@@ -97,22 +112,28 @@ export function AnalystDashboardPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Model Performance & Risk Analytics
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+              {isDistributionView ? 'Claim Risk Score Distribution & Buckets' :
+               isPerformanceView ? 'Model Performance & PR-AUC Evaluation' :
+               isTrendsView ? 'Fraud Trends & Anomaly Insights' :
+               isFalsePositivesView ? 'False Positive & Fast-Track Analysis' :
+               isFairnessView ? 'Model Fairness, Bias & Demographic Parity' :
+               isReportsView ? 'Model Governance & Validation Reports' :
+               'Model Performance & Risk Analytics'}
             </h1>
             <span style={{ 
               background: 'rgba(139, 92, 246, 0.15)', 
               color: '#8b5cf6', 
               fontSize: '11px', 
               fontWeight: 700, 
-              padding: '3px 8px', 
+              padding: '3px 10px', 
               borderRadius: '20px', 
               border: '1px solid rgba(139, 92, 246, 0.3)' 
             }}>
               Risk Analyst Role
             </span>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '6px 0 0' }}>
             PR-AUC evaluation, decision boundary tuning, confusion matrix breakdown, and feature attribution
           </p>
         </div>
@@ -151,6 +172,45 @@ export function AnalystDashboardPage() {
             0.50 (Standard)
           </button>
         </div>
+      </div>
+
+      {/* Sub-Navigation Tabs */}
+      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+        {[
+          { path: '/analyst/dashboard', label: 'Overview', icon: Layers },
+          { path: '/analyst/distribution', label: 'Distribution', icon: PieChart },
+          { path: '/analyst/performance', label: 'Performance', icon: Gauge },
+          { path: '/analyst/trends', label: 'Trends', icon: TrendingUp },
+          { path: '/analyst/false-positives', label: 'False Positives', icon: SearchCheck },
+          { path: '/analyst/fairness', label: 'Fairness & Bias', icon: Scale },
+          { path: '/analyst/reports', label: 'Model Reports', icon: FileText },
+        ].map(tab => {
+          const Icon = tab.icon;
+          const isActive = currentPath === tab.path || (tab.path === '/analyst/dashboard' && isOverview);
+          return (
+            <Link
+              key={tab.path}
+              to={tab.path}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: isActive ? '#8b5cf6' : '#94a3b8',
+                backgroundColor: isActive ? 'rgba(139, 92, 246, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                border: isActive ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(255, 255, 255, 0.06)',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Icon size={15} />
+              <span>{tab.label}</span>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Metrics Row */}

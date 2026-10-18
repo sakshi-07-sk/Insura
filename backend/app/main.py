@@ -19,6 +19,7 @@ from backend.app.db.database import init_db
 from backend.app.api.health import router as health_router
 from backend.app.api.claims import router as claims_router
 from backend.app.api.reviews import router as reviews_router
+from backend.app.api.auth import router as auth_router
 from ml.predict import (
     load_model,
     ModelNotLoadedError,
@@ -159,6 +160,7 @@ async def handle_unhandled_exception(request: Request, exc: Exception) -> JSONRe
 app.include_router(health_router)
 app.include_router(claims_router)
 app.include_router(reviews_router)
+app.include_router(auth_router)
 
 
 @app.get("/", tags=["Root"])

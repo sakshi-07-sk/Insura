@@ -32,10 +32,16 @@ def init_db() -> None:
     """Initialize database tables according to defined declarative models."""
     global _tables_initialized
     try:
-        from backend.app.db.models import ClaimRecord  # noqa: F401
+        from backend.app.db.models import ClaimRecord, UserRecord  # noqa: F401
+        from backend.app.services.auth_service import seed_initial_users
         Base.metadata.create_all(bind=engine)
         _tables_initialized = True
         logger.info("Database tables verified and initialized successfully.")
+
+        # Seed initial demo accounts if empty
+        with SessionLocal() as db:
+            seed_initial_users(db)
+            logger.info("Initial user accounts verified/seeded.")
     except Exception as exc:
         logger.error("Failed to initialize database tables: %s", exc)
         raise

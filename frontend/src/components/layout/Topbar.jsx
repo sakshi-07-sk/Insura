@@ -19,15 +19,37 @@ import { useAuth, DEMO_ACCOUNTS, ROLES, ROLE_DETAILS } from '../../context/AuthC
 
 const PAGE_TITLES = {
   '/': 'Operational Overview',
-  '/admin/dashboard': 'Platform Governance & Infrastructure',
+  '/admin/dashboard': 'Admin Governance & Overview',
+  '/admin/users': 'User Management & Provisioning',
+  '/admin/access': 'Role & Access Control (RBAC)',
+  '/admin/claims': 'All Claims Governance Queue',
+  '/admin/health': 'System Health & Infrastructure Telemetry',
+  '/admin/audit': 'Platform Security & Audit Trails',
+  '/admin/model-config': 'Model Configuration & Thresholds',
   '/claims/dashboard': 'Claims Intake & Triage Workspace',
-  '/investigator/dashboard': 'SIU Fraud Investigation Queue',
-  '/analyst/dashboard': 'Model Performance & Risk Analytics',
+  '/claims/submit': 'Submit New Insurance Claim',
+  '/claims/my-claims': 'My Filed Claims Queue',
+  '/claims/status': 'Claim Status & Processing Tracker',
+  '/claims/notifications': 'Claims Activity & Decision Alerts',
+  '/investigator/dashboard': 'SIU Fraud Investigation Command Center',
+  '/investigator/queue': 'Fraud Investigation Queue',
+  '/investigator/high-risk': 'High-Risk Priority Claims',
+  '/investigator/assigned': 'My Assigned Investigation Cases',
+  '/investigator/history': 'SIU Review History & Closed Audits',
+  '/investigator/reports': 'Fraud Investigation Reports & Analytics',
+  '/analyst/dashboard': 'Risk Intelligence & Model Overview',
+  '/analyst/distribution': 'Claim Risk Score Distribution',
+  '/analyst/performance': 'Model Performance & Evaluation Metrics',
+  '/analyst/trends': 'Fraud Trends & Anomaly Insights',
+  '/analyst/false-positives': 'False Positive & Fast-Track Analysis',
+  '/analyst/fairness': 'Fairness, Bias & Demographic Parity',
+  '/analyst/reports': 'Model Governance & Validation Reports',
+  '/profile': 'User Profile & Security Settings',
+  '/settings': 'System Settings & Integration',
   '/claims': 'Claims Triage Queue',
-  '/score': 'Score a Claim',
-  '/reviews': 'Adjuster Review Center',
-  '/insights': 'Model Performance Insights',
-  '/settings': 'System Settings & Integration'
+  '/score': 'Real-Time Risk Scorer',
+  '/reviews': 'Human Review Center',
+  '/insights': 'Model Governance Insights',
 };
 
 export function Topbar({ onOpenSidebar }) {
@@ -95,8 +117,8 @@ export function Topbar({ onOpenSidebar }) {
       <header
         style={{
           height: 'var(--topbar-height)',
-          backgroundColor: '#ffffff',
-          borderBottom: '1px solid var(--border-light)',
+          backgroundColor: '#0a1122',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -104,7 +126,7 @@ export function Topbar({ onOpenSidebar }) {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          boxShadow: 'var(--shadow-sm)'
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)'
         }}
       >
         {/* Left: Mobile Toggle & Page Title */}
@@ -273,19 +295,19 @@ export function Topbar({ onOpenSidebar }) {
                   border: 'none',
                   background: 'transparent',
                   fontWeight: 700,
-                  fontSize: '12px',
-                  color: 'var(--text-primary)',
+                  fontSize: '13px',
+                  color: currentRoleDetails.color,
                   cursor: 'pointer',
                   padding: 0,
                   outline: 'none',
-                  maxWidth: '130px'
+                  maxWidth: '140px'
                 }}
                 title="Switch active role workspace"
               >
-                <option value={ROLES.ADMIN}>Admin</option>
-                <option value={ROLES.CLAIMS_OFFICER}>Claims Officer</option>
-                <option value={ROLES.INVESTIGATOR}>Investigator</option>
-                <option value={ROLES.ANALYST}>Analyst</option>
+                <option value={ROLES.ADMIN} style={{ backgroundColor: '#0a1122', color: '#ffffff' }}>Admin</option>
+                <option value={ROLES.CLAIMS_OFFICER} style={{ backgroundColor: '#0a1122', color: '#ffffff' }}>Claims Officer</option>
+                <option value={ROLES.INVESTIGATOR} style={{ backgroundColor: '#0a1122', color: '#ffffff' }}>Investigator</option>
+                <option value={ROLES.ANALYST} style={{ backgroundColor: '#0a1122', color: '#ffffff' }}>Risk Analyst</option>
               </select>
             </div>
           </div>

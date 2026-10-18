@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ShieldAlert, 
@@ -14,7 +15,11 @@ import {
   ExternalLink,
   ChevronRight,
   Send,
-  Eye
+  Eye,
+  Layers,
+  Briefcase,
+  History,
+  FileSpreadsheet
 } from 'lucide-react';
 import { api, getReviewerId } from '../services/api';
 import { RiskBadge, StatusBadge } from '../components/common/Badge';
@@ -109,28 +114,52 @@ export function InvestigatorDashboardPage() {
     return true; // ALL_FLAGGED
   });
 
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const isQueueView = currentPath === '/investigator/queue';
+  const isHighRiskView = currentPath === '/investigator/high-risk';
+  const isAssignedView = currentPath === '/investigator/assigned';
+  const isHistoryView = currentPath === '/investigator/history';
+  const isReportsView = currentPath === '/investigator/reports';
+  const isOverview = !isQueueView && !isHighRiskView && !isAssignedView && !isHistoryView && !isReportsView;
+
+  useEffect(() => {
+    if (isHighRiskView) {
+      setActiveTab('ALL_FLAGGED');
+    } else if (isAssignedView) {
+      setActiveTab('UNDER_REVIEW');
+    } else if (isHistoryView) {
+      setActiveTab('ESCALATED');
+    }
+  }, [currentPath]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Page Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Special Investigation Unit (SIU) Queue
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+              {isQueueView ? 'Fraud Investigation Priority Queue' :
+               isHighRiskView ? 'High-Risk Claims (Urgent SIU Triage)' :
+               isAssignedView ? 'My Assigned Active Cases' :
+               isHistoryView ? 'Investigation Review & Audit History' :
+               isReportsView ? 'SIU Fraud Investigation Reports & Findings' :
+               'Special Investigation Unit (SIU) Queue'}
             </h1>
             <span style={{ 
               background: 'rgba(239, 68, 68, 0.15)', 
               color: '#ef4444', 
               fontSize: '11px', 
               fontWeight: 700, 
-              padding: '3px 8px', 
+              padding: '3px 10px', 
               borderRadius: '20px', 
               border: '1px solid rgba(239, 68, 68, 0.3)' 
             }}>
               Fraud Investigator Role
             </span>
           </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '4px 0 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '6px 0 0' }}>
             Investigate suspicious claims, analyze contributing risk factors, and record legal audit determinations
           </p>
         </div>
@@ -143,17 +172,55 @@ export function InvestigatorDashboardPage() {
             gap: '8px',
             background: 'var(--bg-card)',
             border: '1px solid var(--border-light)',
-            padding: '8px 16px',
+            padding: '10px 18px',
             borderRadius: '8px',
             color: 'var(--text-primary)',
-            fontSize: '13px',
+            fontSize: '14px',
             fontWeight: 600,
             cursor: 'pointer'
           }}
         >
-          <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
-          Sync Queue
+          <RefreshCw size={15} className={isRefreshing ? 'animate-spin' : ''} />
+          Refresh Queue
         </button>
+      </div>
+
+      {/* Sub-Navigation Tabs */}
+      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+        {[
+          { path: '/investigator/dashboard', label: 'Overview', icon: Layers },
+          { path: '/investigator/queue', label: 'Investigation Queue', icon: AlertTriangle },
+          { path: '/investigator/high-risk', label: 'High-Risk Claims', icon: ShieldAlert },
+          { path: '/investigator/assigned', label: 'Assigned Cases', icon: Briefcase },
+          { path: '/investigator/history', label: 'Review History', icon: History },
+          { path: '/investigator/reports', label: 'Investigation Reports', icon: FileSpreadsheet },
+        ].map(tab => {
+          const Icon = tab.icon;
+          const isActive = currentPath === tab.path || (tab.path === '/investigator/dashboard' && isOverview);
+          return (
+            <Link
+              key={tab.path}
+              to={tab.path}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
+                color: isActive ? '#ef4444' : '#94a3b8',
+                backgroundColor: isActive ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                border: isActive ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255, 255, 255, 0.06)',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Icon size={15} />
+              <span>{tab.label}</span>
+            </Link>
+          );
+        })}
       </div>
 
       {/* SIU Metrics */}

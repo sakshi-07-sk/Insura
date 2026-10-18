@@ -2,25 +2,38 @@ import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
+  Users, 
+  ShieldCheck, 
   ListFilter, 
-  FileCheck2, 
-  ShieldAlert, 
+  Activity, 
+  FileText, 
   Cpu, 
-  Settings, 
-  X,
-  Server,
-  Users,
-  ShieldCheck,
+  Settings,
+  PlusCircle,
   FileStack,
-  Flag,
+  CheckCircle2,
+  Bell,
+  UserCheck,
+  AlertTriangle,
+  ShieldAlert,
+  Briefcase,
+  History,
+  FileSpreadsheet,
+  PieChart,
+  Gauge,
+  TrendingUp,
+  SearchCheck,
+  Scale,
   BarChart3,
   LogOut,
-  ExternalLink
+  X,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react';
-import { useAuth, ROLE_DETAILS, ROLES } from '../../context/AuthContext';
+import { useAuth, ROLE_DETAILS, ROLES, DEMO_ACCOUNTS } from '../../context/AuthContext';
 
 export function Sidebar({ isOpen, onClose }) {
-  const { user, role, logout } = useAuth();
+  const { user, role, logout, switchRole } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -28,22 +41,50 @@ export function Sidebar({ isOpen, onClose }) {
     navigate('/login');
   };
 
-  const ROLE_NAV = [
-    { path: '/admin/dashboard', label: 'Admin Governance', icon: Users, role: ROLES.ADMIN },
-    { path: '/claims/dashboard', label: 'Claims Intake', icon: FileStack, role: ROLES.CLAIMS_OFFICER },
-    { path: '/investigator/dashboard', label: 'SIU Investigation', icon: Flag, role: ROLES.INVESTIGATOR },
-    { path: '/analyst/dashboard', label: 'Model Analytics', icon: BarChart3, role: ROLES.ANALYST },
-  ];
+  // Strictly role-specific navigation maps
+  const NAV_CONFIG = {
+    [ROLES.ADMIN]: [
+      { path: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
+      { path: '/admin/users', label: 'User Management', icon: Users },
+      { path: '/admin/access', label: 'Role & Access Control', icon: ShieldCheck },
+      { path: '/admin/claims', label: 'All Claims', icon: ListFilter },
+      { path: '/admin/health', label: 'System Health', icon: Activity },
+      { path: '/admin/audit', label: 'Audit Logs', icon: FileText },
+      { path: '/admin/model-config', label: 'Model Configuration', icon: Cpu },
+      { path: '/settings', label: 'Settings', icon: Settings },
+    ],
+    [ROLES.CLAIMS_OFFICER]: [
+      { path: '/claims/dashboard', label: 'My Dashboard', icon: LayoutDashboard },
+      { path: '/claims/submit', label: 'Submit New Claim', icon: PlusCircle },
+      { path: '/claims/my-claims', label: 'My Claims', icon: FileStack },
+      { path: '/claims/status', label: 'Claim Status', icon: CheckCircle2 },
+      { path: '/claims/notifications', label: 'Notifications', icon: Bell },
+      { path: '/profile', label: 'Profile', icon: UserCheck },
+    ],
+    [ROLES.INVESTIGATOR]: [
+      { path: '/investigator/dashboard', label: 'Investigation Dashboard', icon: LayoutDashboard },
+      { path: '/investigator/queue', label: 'Investigation Queue', icon: AlertTriangle },
+      { path: '/investigator/high-risk', label: 'High-Risk Claims', icon: ShieldAlert },
+      { path: '/investigator/assigned', label: 'Assigned Cases', icon: Briefcase },
+      { path: '/investigator/history', label: 'Review History', icon: History },
+      { path: '/investigator/reports', label: 'Investigation Reports', icon: FileSpreadsheet },
+      { path: '/profile', label: 'Profile', icon: UserCheck },
+    ],
+    [ROLES.ANALYST]: [
+      { path: '/analyst/dashboard', label: 'Risk Overview', icon: LayoutDashboard },
+      { path: '/analyst/distribution', label: 'Risk Distribution', icon: PieChart },
+      { path: '/analyst/performance', label: 'Model Performance', icon: Gauge },
+      { path: '/analyst/trends', label: 'Fraud Trends', icon: TrendingUp },
+      { path: '/analyst/false-positives', label: 'False Positive Analysis', icon: SearchCheck },
+      { path: '/analyst/fairness', label: 'Fairness & Bias', icon: Scale },
+      { path: '/analyst/reports', label: 'Model Reports', icon: BarChart3 },
+      { path: '/profile', label: 'Profile', icon: UserCheck },
+    ],
+  };
 
-  const CORE_NAV = [
-    { path: '/claims', label: 'All Claims Queue', icon: ListFilter },
-    { path: '/score', label: 'Real-time Scorer', icon: FileCheck2 },
-    { path: '/reviews', label: 'Review Center', icon: ShieldAlert },
-    { path: '/insights', label: 'Model Governance', icon: Cpu },
-    { path: '/settings', label: 'System Settings', icon: Settings }
-  ];
-
-  const currentRoleDetails = ROLE_DETAILS[role] || ROLE_DETAILS[ROLES.CLAIMS_OFFICER];
+  const currentRole = role || ROLES.CLAIMS_OFFICER;
+  const currentRoleDetails = ROLE_DETAILS[currentRole] || ROLE_DETAILS[ROLES.CLAIMS_OFFICER];
+  const roleNavItems = NAV_CONFIG[currentRole] || NAV_CONFIG[ROLES.CLAIMS_OFFICER];
 
   return (
     <>
@@ -54,9 +95,9 @@ export function Sidebar({ isOpen, onClose }) {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
             zIndex: 998,
-            backdropFilter: 'blur(2px)'
+            backdropFilter: 'blur(4px)'
           }}
           aria-hidden="true"
         />
@@ -90,8 +131,8 @@ export function Sidebar({ isOpen, onClose }) {
         }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '8px',
               background: 'linear-gradient(135deg, #06b6d4, #2563eb)',
               display: 'flex',
@@ -100,14 +141,14 @@ export function Sidebar({ isOpen, onClose }) {
               color: '#ffffff',
               boxShadow: '0 2px 8px rgba(6, 182, 212, 0.35)'
             }}>
-              <ShieldCheck size={18} />
+              <ShieldCheck size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '15px', color: '#ffffff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                INSURA <span style={{ fontSize: '9px', color: '#06b6d4', padding: '1px 5px', background: 'rgba(6,182,212,0.15)', borderRadius: '10px', border: '1px solid rgba(6,182,212,0.3)', fontWeight: 700 }}>s390x</span>
+              <div style={{ fontWeight: 800, fontSize: '16px', color: '#ffffff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                INSURA <span style={{ fontSize: '9px', color: '#06b6d4', padding: '1px 6px', background: 'rgba(6,182,212,0.15)', borderRadius: '10px', border: '1px solid rgba(6,182,212,0.3)', fontWeight: 700 }}>s390x</span>
               </div>
-              <div style={{ fontSize: '9px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                ENTERPRISE PLATFORM
+              <div style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                RISK INTELLIGENCE
               </div>
             </div>
           </Link>
@@ -131,116 +172,85 @@ export function Sidebar({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Navigation Sections */}
-        <div style={{ padding: '16px 12px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
-          {/* Role Workspaces */}
+        {/* Role Badge Indicator */}
+        <div style={{
+          padding: '14px 18px',
+          background: 'rgba(255, 255, 255, 0.02)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
           <div>
-            <div style={{ 
-              fontSize: '11px', 
-              fontWeight: 700, 
-              color: '#64748b', 
-              textTransform: 'uppercase', 
-              letterSpacing: '0.06em',
-              padding: '0 12px 8px'
-            }}>
-              Role Workspaces
+            <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+              Current Workspace
             </div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: currentRoleDetails.color, marginTop: '2px' }}>
+              {currentRoleDetails.name}
+            </div>
+          </div>
+          <span style={{
+            fontSize: '10px',
+            fontWeight: 700,
+            padding: '2px 8px',
+            borderRadius: '10px',
+            background: currentRoleDetails.bg,
+            color: currentRoleDetails.color,
+            border: `1px solid ${currentRoleDetails.color}35`
+          }}>
+            {currentRoleDetails.badge}
+          </span>
+        </div>
 
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {ROLE_NAV.map((item) => {
-                const Icon = item.icon;
-                const isUserRole = user?.role === item.role;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => { if (window.innerWidth < 1024) onClose(); }}
-                    style={({ isActive }) => ({
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '9px 12px',
-                      borderRadius: '8px',
-                      fontSize: '13px',
-                      fontWeight: isActive ? 600 : 500,
-                      color: isActive ? '#ffffff' : '#94a3b8',
-                      backgroundColor: isActive ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
-                      border: isActive ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent',
-                      textDecoration: 'none',
-                      transition: 'all 0.15s'
-                    })}
-                    className="nav-link-item"
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <Icon size={16} />
-                      <span>{item.label}</span>
-                    </div>
-                    {isUserRole && (
-                      <span style={{
-                        fontSize: '9px',
-                        padding: '1px 6px',
-                        borderRadius: '10px',
-                        background: currentRoleDetails.bg,
-                        color: currentRoleDetails.color,
-                        fontWeight: 700
-                      }}>
-                        ACTIVE
-                      </span>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </nav>
+        {/* Dynamic Navigation Section for Active Role */}
+        <div style={{ padding: '16px 12px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ 
+            fontSize: '11px', 
+            fontWeight: 700, 
+            color: '#475569', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.08em',
+            padding: '0 12px 6px'
+          }}>
+            Navigation
           </div>
 
-          {/* Operations & Triage */}
-          <div>
-            <div style={{ 
-              fontSize: '11px', 
-              fontWeight: 700, 
-              color: '#64748b', 
-              textTransform: 'uppercase', 
-              letterSpacing: '0.06em',
-              padding: '0 12px 8px'
-            }}>
-              Platform Tools
-            </div>
-
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {CORE_NAV.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => { if (window.innerWidth < 1024) onClose(); }}
-                    style={({ isActive }) => ({
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      padding: '9px 12px',
-                      borderRadius: '8px',
-                      fontSize: '13px',
-                      fontWeight: isActive ? 600 : 500,
-                      color: isActive ? '#ffffff' : '#94a3b8',
-                      backgroundColor: isActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
-                      border: isActive ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid transparent',
-                      textDecoration: 'none',
-                      transition: 'all 0.15s'
-                    })}
-                    className="nav-link-item"
-                  >
-                    <Icon size={16} />
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {roleNavItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => { if (window.innerWidth < 1024) onClose(); }}
+                  style={({ isActive }) => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: isActive ? 600 : 500,
+                    color: isActive ? '#ffffff' : '#94a3b8',
+                    backgroundColor: isActive ? 'rgba(6, 182, 212, 0.16)' : 'transparent',
+                    border: isActive ? '1px solid rgba(6, 182, 212, 0.35)' : '1px solid transparent',
+                    textDecoration: 'none',
+                    transition: 'all 0.15s'
+                  })}
+                  className="nav-link-item"
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Icon size={18} />
                     <span>{item.label}</span>
-                  </NavLink>
-                );
-              })}
-            </nav>
-          </div>
+                  </div>
+                  <ChevronRight size={14} style={{ opacity: 0.4 }} />
+                </NavLink>
+              );
+            })}
+          </nav>
 
-          {/* Back to Public Landing */}
-          <div style={{ marginTop: 'auto' }}>
+          {/* Quick link to Landing Page */}
+          <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
             <Link
               to="/"
               style={{
@@ -250,12 +260,12 @@ export function Sidebar({ isOpen, onClose }) {
                 padding: '8px 12px',
                 borderRadius: '8px',
                 color: '#64748b',
-                fontSize: '12px',
+                fontSize: '13px',
                 textDecoration: 'none'
               }}
             >
               <ExternalLink size={14} />
-              <span>Landing Page Showcase</span>
+              <span>Public Landing Page</span>
             </Link>
           </div>
         </div>
@@ -270,10 +280,13 @@ export function Sidebar({ isOpen, onClose }) {
           justifyContent: 'space-between',
           gap: '10px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+          <Link 
+            to="/profile" 
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1, textDecoration: 'none' }}
+          >
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
               background: currentRoleDetails.bg,
               color: currentRoleDetails.color,
@@ -281,8 +294,9 @@ export function Sidebar({ isOpen, onClose }) {
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 700,
-              fontSize: '12px',
-              flexShrink: 0
+              fontSize: '13px',
+              flexShrink: 0,
+              border: `1px solid ${currentRoleDetails.color}50`
             }}>
               {user?.initials || 'U'}
             </div>
@@ -294,21 +308,22 @@ export function Sidebar({ isOpen, onClose }) {
                 {currentRoleDetails.name}
               </div>
             </div>
-          </div>
+          </Link>
 
           <button
             onClick={handleLogout}
             title="Sign Out"
             style={{
-              padding: '6px',
+              padding: '8px',
               borderRadius: '6px',
-              background: 'transparent',
-              border: 'none',
-              color: '#64748b',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              color: '#f87171',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'background 0.15s'
             }}
           >
             <LogOut size={16} />
@@ -334,8 +349,8 @@ export function Sidebar({ isOpen, onClose }) {
           }
         }
         .nav-link-item:hover:not([class*="active"]) {
-          background-color: rgba(255, 255, 255, 0.05);
-          color: #ffffff;
+          background-color: rgba(255, 255, 255, 0.05) !important;
+          color: #ffffff !important;
         }
       `}</style>
     </>

@@ -7,12 +7,12 @@
 }
 
 html, body {
-  height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
   color: var(--text-primary);
   background-color: var(--bg-app);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -56,7 +56,7 @@ a:focus-visible {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 20px;
+  padding: 24px;
   transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
@@ -68,24 +68,25 @@ a:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border-light);
 }
 
 .card-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  letter-spacing: -0.01em;
 }
 
 .card-subtitle {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 /* Button Variants */
@@ -94,9 +95,9 @@ a:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
   white-space: nowrap;
@@ -228,7 +229,7 @@ a:focus-visible {
 }
 
 .form-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   display: flex;
@@ -242,8 +243,8 @@ a:focus-visible {
 
 .form-control {
   width: 100%;
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 10px 14px;
+  font-size: 14px;
   font-family: inherit;
   color: var(--text-primary);
   background-color: var(--bg-input);
@@ -254,7 +255,7 @@ a:focus-visible {
 
 .form-control:focus {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
   outline: none;
 }
 
@@ -269,9 +270,9 @@ a:focus-visible {
 }
 
 .form-error {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--risk-high-text);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 /* Table Architecture */
@@ -286,22 +287,26 @@ a:focus-visible {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .data-table th {
   background-color: var(--bg-subtle);
   color: var(--text-secondary);
   font-weight: 600;
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border-light);
   white-space: nowrap;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .data-table td {
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border-light);
   color: var(--text-primary);
+  font-size: 14px;
 }
 
 .data-table tbody tr {
@@ -309,7 +314,7 @@ a:focus-visible {
 }
 
 .data-table tbody tr:hover {
-  background-color: var(--bg-subtle);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .data-table tbody tr:last-child td {

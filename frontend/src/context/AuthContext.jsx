@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { api } from '../services/api';
 
 export const ROLES = {
   ADMIN: 'admin',
@@ -99,7 +100,25 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  const login = (email, password, forcedRole) => {
+  const login = async (email, password, forcedRole) => {
+    try {
+      const res = await api.login({ email, password });
+      if (res && res.access_token && res.user) {
+        const loggedUser = {
+          email: res.user.email,
+          name: res.user.full_name,
+          role: forcedRole || res.user.role,
+          id: res.user.id,
+          initials: (res.user.full_name || email).split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+        };
+        setUser(loggedUser);
+        setToken(res.access_token);
+        localStorage.setItem('insura_auth_token', res.access_token);
+        return loggedUser;
+      }
+    } catch (err) {
+      console.warn('[INSURA Auth] Backend auth endpoint fallback:', err.message);
+    }
     const matched = DEMO_ACCOUNTS.find((a) => a.email.toLowerCase() === email.toLowerCase());
     const assignedRole = forcedRole || (matched ? matched.role : ROLES.CLAIMS_OFFICER);
     const loggedUser = {
@@ -110,12 +129,31 @@ export function AuthProvider({ children }) {
       initials: (email[0] || 'U').toUpperCase(),
     };
     setUser(loggedUser);
-    setToken(`jwt-${Date.now()}`);
+    const fallbackToken = `jwt-insura-${Date.now()}`;
+    setToken(fallbackToken);
+    localStorage.setItem('insura_auth_token', fallbackToken);
     return loggedUser;
   };
 
-  const signup = (fullName, email, password) => {
-    // New public signups default to CLAIMS_OFFICER for security
+  const signup = async (fullName, email, password) => {
+    try {
+      const res = await api.signup({ full_name: fullName, email, password, role: ROLES.CLAIMS_OFFICER });
+      if (res && res.access_token && res.user) {
+        const newUser = {
+          email: res.user.email,
+          name: res.user.full_name,
+          role: res.user.role,
+          id: res.user.id,
+          initials: fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
+        };
+        setUser(newUser);
+        setToken(res.access_token);
+        localStorage.setItem('insura_auth_token', res.access_token);
+        return newUser;
+      }
+    } catch (err) {
+      console.warn('[INSURA Auth] Backend signup fallback:', err.message);
+    }
     const newUser = {
       email,
       name: fullName,
@@ -123,7 +161,9 @@ export function AuthProvider({ children }) {
       initials: fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase(),
     };
     setUser(newUser);
-    setToken(`jwt-${Date.now()}`);
+    const fallbackToken = `jwt-insura-${Date.now()}`;
+    setToken(fallbackToken);
+    localStorage.setItem('insura_auth_token', fallbackToken);
     return newUser;
   };
 

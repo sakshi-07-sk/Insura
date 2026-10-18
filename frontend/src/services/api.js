@@ -113,6 +113,11 @@ async function request(endpoint, options = {}) {
     headers['X-Reviewer-Id'] = reviewerId;
   }
 
+  const token = localStorage.getItem('insura_auth_token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options.timeout || 15000);
 
@@ -149,12 +154,13 @@ async function request(endpoint, options = {}) {
   } catch (err) {
     clearTimeout(timeoutId);
 
-    // If mock mode is active OR if backend network request fails, fall back gracefully to demonstration records
-    if (isMock || err.name === 'AbortError' || (err.message && err.message.includes('Failed to fetch'))) {
-      console.warn(`[INSURA API] Network request to ${url} unavailable (${err.message}). Serving resilient fallback data.`);
+    // Only serve mock fallback if mock mode is EXPLICITLY enabled by the user
+    if (isMock) {
+      console.warn(`[INSURA Mock Mode] Serving synthetic demonstration response for: ${cleanEndpoint}`);
       return handleMockFallback(cleanEndpoint, options);
     }
 
+    // In live mode, throw genuine network error so UI accurately reflects backend status
     throw err;
   }
 }
@@ -352,11 +358,47 @@ export const api = {
     });
   },
 
+  async updateClaimReviewStatus(claimId, review_status, review_notes, reviewer_id) {
+    return this.updateClaimReview(claimId, { review_status, reviewer_id, review_notes });
+  },
+
   /**
    * Dashboard Operational Summary Statistics
    * GET /dashboard/stats
    */
   async getDashboardStats() {
     return request('/dashboard/stats');
+  },
+
+  /**
+   * User Authentication & RBAC APIs
+   */
+  async login({ email, password }) {
+    return request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password })
+    });
+  },
+
+  async signup({ email, full_name, password, role }) {
+    return request('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify({ email, full_name, password, role })
+    });
+  },
+
+  async getMe() {
+    return request('/auth/me');
+  },
+
+  async getUsers() {
+    return request('/auth/users');
+  },
+
+  async updateUserRole(userId, role) {
+    return request(`/auth/users/${userId}/role?role=${encodeURIComponent(role)}`, {
+      method: 'PATCH'
+    });
   }
 };
+

@@ -181,3 +181,35 @@ class ModelInfoResponse(BaseModel):
     mock_mode_active: bool
     expected_features: List[str]
     risk_thresholds: Dict[str, float]
+
+
+class UserLoginRequest(BaseModel):
+    """Credentials payload for system login."""
+    email: str = Field(..., description="User corporate email", examples=["admin@insura.ai"])
+    password: str = Field(..., description="User account password", examples=["demo1234"])
+
+
+class UserSignupRequest(BaseModel):
+    """Payload for registering a new user account."""
+    email: str = Field(..., description="Corporate email address", examples=["officer@insura.ai"])
+    full_name: str = Field(..., description="User's full name", examples=["Marcus Vance"])
+    password: str = Field(..., min_length=6, description="Account password (min 6 chars)", examples=["demo1234"])
+    role: Optional[str] = Field("claims_officer", description="Assigned role (defaults to claims_officer)")
+
+
+class UserResponse(BaseModel):
+    """Public user profile representation."""
+    id: int
+    email: str
+    full_name: str
+    role: str
+    is_active: bool
+    created_at: Optional[str] = None
+
+
+class AuthResponse(BaseModel):
+    """Authentication token and identity response."""
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
