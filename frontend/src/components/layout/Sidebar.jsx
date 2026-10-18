@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   ListFilter, 
@@ -8,19 +8,43 @@ import {
   Cpu, 
   Settings, 
   X,
-  Server
+  Server,
+  Users,
+  ShieldCheck,
+  FileStack,
+  Flag,
+  BarChart3,
+  LogOut,
+  ExternalLink
 } from 'lucide-react';
-
-const NAV_ITEMS = [
-  { path: '/', label: 'Overview', icon: LayoutDashboard },
-  { path: '/claims', label: 'Claims Queue', icon: ListFilter },
-  { path: '/score', label: 'Score a Claim', icon: FileCheck2 },
-  { path: '/reviews', label: 'Review Center', icon: ShieldAlert },
-  { path: '/insights', label: 'Model Insights', icon: Cpu },
-  { path: '/settings', label: 'Settings', icon: Settings }
-];
+import { useAuth, ROLE_DETAILS, ROLES } from '../../context/AuthContext';
 
 export function Sidebar({ isOpen, onClose }) {
+  const { user, role, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const ROLE_NAV = [
+    { path: '/admin/dashboard', label: 'Admin Governance', icon: Users, role: ROLES.ADMIN },
+    { path: '/claims/dashboard', label: 'Claims Intake', icon: FileStack, role: ROLES.CLAIMS_OFFICER },
+    { path: '/investigator/dashboard', label: 'SIU Investigation', icon: Flag, role: ROLES.INVESTIGATOR },
+    { path: '/analyst/dashboard', label: 'Model Analytics', icon: BarChart3, role: ROLES.ANALYST },
+  ];
+
+  const CORE_NAV = [
+    { path: '/claims', label: 'All Claims Queue', icon: ListFilter },
+    { path: '/score', label: 'Real-time Scorer', icon: FileCheck2 },
+    { path: '/reviews', label: 'Review Center', icon: ShieldAlert },
+    { path: '/insights', label: 'Model Governance', icon: Cpu },
+    { path: '/settings', label: 'System Settings', icon: Settings }
+  ];
+
+  const currentRoleDetails = ROLE_DETAILS[role] || ROLE_DETAILS[ROLES.CLAIMS_OFFICER];
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -41,8 +65,8 @@ export function Sidebar({ isOpen, onClose }) {
       <aside
         style={{
           width: 'var(--sidebar-width)',
-          backgroundColor: 'var(--bg-sidebar)',
-          borderRight: '1px solid var(--sidebar-border)',
+          backgroundColor: '#070d19',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           flexDirection: 'column',
           position: 'fixed',
@@ -62,31 +86,31 @@ export function Sidebar({ isOpen, onClose }) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 20px',
-          borderBottom: '1px solid var(--sidebar-border)'
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
             <div style={{
-              width: '34px',
-              height: '34px',
+              width: '32px',
+              height: '32px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+              background: 'linear-gradient(135deg, #06b6d4, #2563eb)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#ffffff',
-              boxShadow: '0 2px 4px rgba(37, 99, 235, 0.3)'
+              boxShadow: '0 2px 8px rgba(6, 182, 212, 0.35)'
             }}>
-              <ShieldAlert size={20} />
+              <ShieldCheck size={18} />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '15px', color: '#ffffff', letterSpacing: '-0.01em' }}>
-                ClaimGuard AI
+              <div style={{ fontWeight: 800, fontSize: '15px', color: '#ffffff', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                INSURA <span style={{ fontSize: '9px', color: '#06b6d4', padding: '1px 5px', background: 'rgba(6,182,212,0.15)', borderRadius: '10px', border: '1px solid rgba(6,182,212,0.3)', fontWeight: 700 }}>s390x</span>
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '9px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 IBM Z Datathon 2026
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Close button for mobile */}
           <button 
@@ -96,7 +120,10 @@ export function Sidebar({ isOpen, onClose }) {
               color: '#94a3b8',
               padding: '6px',
               borderRadius: '4px',
-              display: 'none'
+              display: 'none',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
             }}
             aria-label="Close menu"
           >
@@ -104,62 +131,188 @@ export function Sidebar({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Navigation Section */}
-        <div style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
-          <div style={{ 
-            fontSize: '11px', 
-            fontWeight: 600, 
-            color: 'var(--sidebar-heading)', 
-            textTransform: 'uppercase', 
-            letterSpacing: '0.06em',
-            padding: '0 12px 10px'
-          }}>
-            Triage & Analysis
+        {/* Navigation Sections */}
+        <div style={{ padding: '16px 12px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* Role Workspaces */}
+          <div>
+            <div style={{ 
+              fontSize: '11px', 
+              fontWeight: 700, 
+              color: '#64748b', 
+              textTransform: 'uppercase', 
+              letterSpacing: '0.06em',
+              padding: '0 12px 8px'
+            }}>
+              Role Workspaces
+            </div>
+
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {ROLE_NAV.map((item) => {
+                const Icon = item.icon;
+                const isUserRole = user?.role === item.role;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => { if (window.innerWidth < 1024) onClose(); }}
+                    style={({ isActive }) => ({
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '9px 12px',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? '#ffffff' : '#94a3b8',
+                      backgroundColor: isActive ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
+                      border: isActive ? '1px solid rgba(6, 182, 212, 0.3)' : '1px solid transparent',
+                      textDecoration: 'none',
+                      transition: 'all 0.15s'
+                    })}
+                    className="nav-link-item"
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <Icon size={16} />
+                      <span>{item.label}</span>
+                    </div>
+                    {isUserRole && (
+                      <span style={{
+                        fontSize: '9px',
+                        padding: '1px 6px',
+                        borderRadius: '10px',
+                        background: currentRoleDetails.bg,
+                        color: currentRoleDetails.color,
+                        fontWeight: 700
+                      }}>
+                        ACTIVE
+                      </span>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </nav>
           </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => { if (window.innerWidth < 1024) onClose(); }}
-                  style={({ isActive }) => ({
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-md)',
-                    fontSize: '13px',
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? 'var(--sidebar-text-active)' : 'var(--sidebar-text)',
-                    backgroundColor: isActive ? 'var(--sidebar-active)' : 'transparent',
-                    transition: 'all var(--transition-fast)'
-                  })}
-                  className="nav-link-item"
-                >
-                  <Icon size={18} />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
+          {/* Operations & Triage */}
+          <div>
+            <div style={{ 
+              fontSize: '11px', 
+              fontWeight: 700, 
+              color: '#64748b', 
+              textTransform: 'uppercase', 
+              letterSpacing: '0.06em',
+              padding: '0 12px 8px'
+            }}>
+              Platform Tools
+            </div>
+
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {CORE_NAV.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => { if (window.innerWidth < 1024) onClose(); }}
+                    style={({ isActive }) => ({
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '9px 12px',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? '#ffffff' : '#94a3b8',
+                      backgroundColor: isActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                      border: isActive ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid transparent',
+                      textDecoration: 'none',
+                      transition: 'all 0.15s'
+                    })}
+                    className="nav-link-item"
+                  >
+                    <Icon size={16} />
+                    <span>{item.label}</span>
+                  </NavLink>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Back to Public Landing */}
+          <div style={{ marginTop: 'auto' }}>
+            <Link
+              to="/"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                color: '#64748b',
+                fontSize: '12px',
+                textDecoration: 'none'
+              }}
+            >
+              <ExternalLink size={14} />
+              <span>Landing Page Showcase</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Deployment Target Info Footer */}
+        {/* User Profile & Logout Footer */}
         <div style={{
-          padding: '16px',
-          borderTop: '1px solid var(--sidebar-border)',
-          backgroundColor: '#0a0f1d'
+          padding: '14px 16px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: '#050912',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '10px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontSize: '11px' }}>
-            <Server size={14} style={{ color: '#3b82f6' }} />
-            <span>Target: IBM LinuxONE (`s390x`)</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: currentRoleDetails.bg,
+              color: currentRoleDetails.color,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 700,
+              fontSize: '12px',
+              flexShrink: 0
+            }}>
+              {user?.initials || 'U'}
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {user?.name || 'Authorized User'}
+              </div>
+              <div style={{ fontSize: '11px', color: currentRoleDetails.color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentRoleDetails.name}
+              </div>
+            </div>
           </div>
-          <div style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
-            High-throughput enterprise AI inference
-          </div>
+
+          <button
+            onClick={handleLogout}
+            title="Sign Out"
+            style={{
+              padding: '6px',
+              borderRadius: '6px',
+              background: 'transparent',
+              border: 'none',
+              color: '#64748b',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       </aside>
 
@@ -181,7 +334,7 @@ export function Sidebar({ isOpen, onClose }) {
           }
         }
         .nav-link-item:hover:not([class*="active"]) {
-          background-color: var(--sidebar-hover);
+          background-color: rgba(255, 255, 255, 0.05);
           color: #ffffff;
         }
       `}</style>

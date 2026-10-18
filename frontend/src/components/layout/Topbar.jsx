@@ -10,12 +10,19 @@ import {
   User, 
   RefreshCw,
   SlidersHorizontal,
-  ChevronDown
+  ChevronDown,
+  ShieldAlert,
+  ArrowRight
 } from 'lucide-react';
 import { api, getApiBaseUrl, isMockModeEnabled, getReviewerId, setReviewerId } from '../../services/api';
+import { useAuth, DEMO_ACCOUNTS, ROLES, ROLE_DETAILS } from '../../context/AuthContext';
 
 const PAGE_TITLES = {
   '/': 'Operational Overview',
+  '/admin/dashboard': 'Platform Governance & Infrastructure',
+  '/claims/dashboard': 'Claims Intake & Triage Workspace',
+  '/investigator/dashboard': 'SIU Fraud Investigation Queue',
+  '/analyst/dashboard': 'Model Performance & Risk Analytics',
   '/claims': 'Claims Triage Queue',
   '/score': 'Score a Claim',
   '/reviews': 'Adjuster Review Center',
@@ -26,13 +33,15 @@ const PAGE_TITLES = {
 export function Topbar({ onOpenSidebar }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const pageTitle = PAGE_TITLES[location.pathname] || 'Dashboard';
+  const pageTitle = PAGE_TITLES[location.pathname] || 'Risk Intelligence Platform';
+
+  const { user, role, switchRole } = useAuth();
+  const currentRoleDetails = ROLE_DETAILS[role] || ROLE_DETAILS[ROLES.CLAIMS_OFFICER];
 
   const [connStatus, setConnStatus] = useState('checking'); // 'connected', 'unavailable', 'checking'
   const [connDetails, setConnDetails] = useState(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeReviewer, setActiveReviewer] = useState(getReviewerId());
   const [isPinging, setIsPinging] = useState(false);
 
   const checkConnectivity = async () => {
@@ -74,9 +83,11 @@ export function Topbar({ onOpenSidebar }) {
     navigate(`/claims?search=${encodeURIComponent(cleanQuery)}`);
   };
 
-  const handleReviewerChange = (newReviewer) => {
-    setActiveReviewer(newReviewer);
-    setReviewerId(newReviewer);
+  const handleRoleChange = (e) => {
+    const newRole = e.target.value;
+    switchRole(newRole);
+    const targetRoute = ROLE_DETAILS[newRole]?.defaultRoute || '/claims/dashboard';
+    navigate(targetRoute);
   };
 
   return (
@@ -105,7 +116,10 @@ export function Topbar({ onOpenSidebar }) {
               padding: '6px',
               borderRadius: 'var(--radius-sm)',
               color: 'var(--text-secondary)',
-              display: 'none'
+              display: 'none',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
             }}
             aria-label="Open navigation menu"
           >
@@ -113,11 +127,23 @@ export function Topbar({ onOpenSidebar }) {
           </button>
 
           <div>
-            <h1 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-              {pageTitle}
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h1 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2, margin: 0 }}>
+                {pageTitle}
+              </h1>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '12px',
+                background: currentRoleDetails.bg,
+                color: currentRoleDetails.color
+              }}>
+                {currentRoleDetails.name}
+              </span>
+            </div>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Real-Time Insurance Claim Risk Scoring & Fraud Triage
+              Real-Time Insurance Claim Risk Scoring • IBM LinuxONE s390x
             </div>
           </div>
         </div>
@@ -127,12 +153,12 @@ export function Topbar({ onOpenSidebar }) {
           onSubmit={handleSearchSubmit} 
           className="search-container"
           style={{
-            flex: '0 1 360px',
+            flex: '0 1 320px',
             position: 'relative'
           }}
         >
           <Search 
-            size={16} 
+            size={15} 
             style={{
               position: 'absolute',
               left: '12px',
@@ -143,38 +169,24 @@ export function Topbar({ onOpenSidebar }) {
           />
           <input
             type="search"
-            placeholder="Search by Claim ID (e.g. CLM-2026-00101)..."
+            placeholder="Search Claim ID (e.g. CLM-1001)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="form-control"
             style={{
-              paddingLeft: '36px',
+              paddingLeft: '34px',
               paddingRight: '12px',
-              height: '36px',
+              height: '34px',
               fontSize: '12px',
-              backgroundColor: 'var(--bg-app)'
+              backgroundColor: 'var(--bg-app)',
+              border: '1px solid var(--border-light)',
+              borderRadius: '6px'
             }}
           />
         </form>
 
-        {/* Right: API Status & Reviewer Profile */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Mock mode pill if active */}
-          {isMockModeEnabled() && (
-            <span 
-              className="badge" 
-              style={{ 
-                backgroundColor: '#fef3c7', 
-                color: '#92400e', 
-                border: '1px solid #fde68a',
-                fontSize: '11px'
-              }}
-              title="Development Mock Mode is currently active in settings"
-            >
-              Demo Data Active
-            </span>
-          )}
-
+        {/* Right: Role Switcher & API Status */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           {/* Connection Status Indicator */}
           <button
             onClick={() => setShowStatusModal(true)}
@@ -182,10 +194,10 @@ export function Topbar({ onOpenSidebar }) {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 12px',
+              padding: '5px 10px',
               borderRadius: 'var(--radius-full)',
-              fontSize: '12px',
-              fontWeight: 500,
+              fontSize: '11px',
+              fontWeight: 600,
               backgroundColor: 
                 connStatus === 'connected' ? 'var(--risk-low-bg)' :
                 connStatus === 'unavailable' ? 'var(--risk-high-bg)' : 'var(--risk-med-bg)',
@@ -195,14 +207,15 @@ export function Topbar({ onOpenSidebar }) {
               border: `1px solid ${
                 connStatus === 'connected' ? 'var(--risk-low-border)' :
                 connStatus === 'unavailable' ? 'var(--risk-high-border)' : 'var(--risk-med-border)'
-              }`
+              }`,
+              cursor: 'pointer'
             }}
             title="Click to view API service diagnostics"
           >
             <span
               style={{
-                width: '8px',
-                height: '8px',
+                width: '7px',
+                height: '7px',
                 borderRadius: '50%',
                 backgroundColor:
                   connStatus === 'connected' ? 'var(--status-online)' :
@@ -211,11 +224,11 @@ export function Topbar({ onOpenSidebar }) {
               }}
             />
             <span style={{ textTransform: 'capitalize' }}>
-              {connStatus === 'connected' ? 'API Connected' : connStatus === 'unavailable' ? 'API Offline' : 'Checking API...'}
+              {connStatus === 'connected' ? 'API Live (s390x)' : connStatus === 'unavailable' ? 'API Offline' : 'Connecting...'}
             </span>
           </button>
 
-          {/* Reviewer Profile */}
+          {/* Interactive Role Switcher */}
           <div 
             style={{
               display: 'flex',
@@ -231,37 +244,43 @@ export function Topbar({ onOpenSidebar }) {
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--primary-subtle)',
-                color: 'var(--primary)',
+                backgroundColor: currentRoleDetails.bg,
+                color: currentRoleDetails.color,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: '12px'
               }}
             >
-              <User size={16} />
+              {user?.initials || 'U'}
             </div>
             <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
+                  Active Role:
+                </span>
+              </div>
               <select
-                value={activeReviewer}
-                onChange={(e) => handleReviewerChange(e.target.value)}
+                value={role || ROLES.CLAIMS_OFFICER}
+                onChange={handleRoleChange}
                 style={{
                   border: 'none',
                   background: 'transparent',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: '12px',
                   color: 'var(--text-primary)',
                   cursor: 'pointer',
-                  paddingRight: '4px'
+                  padding: 0,
+                  outline: 'none'
                 }}
-                title="Select active reviewer identity for audit trail"
+                title="Switch active role workspace"
               >
-                <option value="adjuster_marcus">Marcus (Adjuster)</option>
-                <option value="adjuster_elena">Elena (Senior Adjuster)</option>
-                <option value="siu_lead_davis">Davis (SIU Lead)</option>
+                <option value={ROLES.ADMIN}>Admin (Sarah Chen)</option>
+                <option value={ROLES.CLAIMS_OFFICER}>Claims Officer (Marcus Vance)</option>
+                <option value={ROLES.INVESTIGATOR}>Investigator (Elena Rostova)</option>
+                <option value={ROLES.ANALYST}>Analyst (David Okafor)</option>
               </select>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                Audit ID: {activeReviewer}
-              </div>
             </div>
           </div>
         </div>
@@ -273,7 +292,7 @@ export function Topbar({ onOpenSidebar }) {
           style={{
             position: 'fixed',
             inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.5)',
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
             zIndex: 1000,
             display: 'flex',
             alignItems: 'center',
@@ -288,20 +307,22 @@ export function Topbar({ onOpenSidebar }) {
               width: '100%',
               maxWidth: '480px',
               backgroundColor: '#ffffff',
-              boxShadow: 'var(--shadow-lg)'
+              boxShadow: 'var(--shadow-lg)',
+              borderRadius: '12px',
+              padding: '20px'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="card-header">
-              <div className="card-title">
-                <Activity size={18} style={{ color: 'var(--primary)' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)' }}>
+                <Activity size={18} color="var(--primary)" />
                 <span>Backend Service Status</span>
               </div>
               <button 
                 onClick={() => setShowStatusModal(false)}
-                className="btn btn-outline btn-sm"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: 'var(--text-muted)' }}
               >
-                Close
+                ✕
               </button>
             </div>
 
@@ -309,7 +330,7 @@ export function Topbar({ onOpenSidebar }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)' }}>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Status:</span>
                 <span style={{ 
-                  fontWeight: 600, 
+                  fontWeight: 700, 
                   fontSize: '12px',
                   color: connStatus === 'connected' ? 'var(--risk-low-text)' : 'var(--risk-high-text)' 
                 }}>
@@ -339,28 +360,43 @@ export function Topbar({ onOpenSidebar }) {
                 </div>
               )}
 
-              <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4 }}>
-                The frontend verifies backend health via <code>GET /health</code>. To change the target API host (e.g. for LinuxONE ingress or reverse proxies), navigate to the Settings page.
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, margin: '4px 0' }}>
+                Backend running on <strong>IBM LinuxONE s390x</strong>. All risk scoring predictions run natively using the verified Random Forest model pipeline.
               </p>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                 <button
-                  className="btn btn-secondary btn-sm"
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-light)',
+                    background: 'var(--bg-app)',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
                   onClick={() => {
                     setShowStatusModal(false);
                     navigate('/settings');
                   }}
                 >
-                  <SlidersHorizontal size={14} />
-                  <span>Configure API URL</span>
+                  Configure API URL
                 </button>
                 <button
-                  className="btn btn-primary btn-sm"
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    background: 'var(--primary)',
+                    color: '#ffffff',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
                   disabled={isPinging}
                   onClick={checkConnectivity}
                 >
-                  <RefreshCw size={14} style={{ animation: isPinging ? 'spin 1s linear infinite' : 'none' }} />
-                  <span>Recheck Health</span>
+                  {isPinging ? 'Checking...' : 'Recheck Health'}
                 </button>
               </div>
             </div>
