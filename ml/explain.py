@@ -42,6 +42,14 @@ def get_global_feature_importances(
             importances = clf.feature_importances_
         elif hasattr(clf, "coef_"):
             importances = np.abs(clf.coef_[0])
+        elif hasattr(clf, "calibrated_classifiers_"):
+            base = getattr(clf.calibrated_classifiers_[0], "estimator", getattr(clf.calibrated_classifiers_[0], "base_estimator", None))
+            if hasattr(base, "feature_importances_"):
+                importances = base.feature_importances_
+            elif hasattr(base, "coef_"):
+                importances = np.abs(base.coef_[0])
+            else:
+                return []
         else:
             return []
 
@@ -101,6 +109,14 @@ def explain_single_claim(
         importances = clf.feature_importances_
     elif hasattr(clf, "coef_"):
         importances = clf.coef_[0]
+    elif hasattr(clf, "calibrated_classifiers_"):
+        base = getattr(clf.calibrated_classifiers_[0], "estimator", getattr(clf.calibrated_classifiers_[0], "base_estimator", None))
+        if hasattr(base, "feature_importances_"):
+            importances = base.feature_importances_
+        elif hasattr(base, "coef_"):
+            importances = base.coef_[0]
+        else:
+            importances = np.ones(len(feature_names))
     else:
         importances = np.ones(len(feature_names))
 

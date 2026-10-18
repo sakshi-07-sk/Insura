@@ -1,15 +1,18 @@
 {
   "model_version": "1.0.0",
-  "model_type": "RandomForest",
-  "training_timestamp": "2026-10-17T09:01:25.917195+00:00",
-  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "model_type": "HistGradientBoosting",
+  "is_calibrated": true,
+  "calibration_method": "sigmoid",
+  "cross_validation_folds": 5,
+  "training_timestamp": "2026-10-18T02:57:46.317348+00:00",
+  "python_version": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
   "os_architecture": "AMD64",
   "os_system": "Windows",
   "package_versions": {
-    "scikit_learn": "1.9.0",
-    "numpy": "2.5.2",
-    "pandas": "3.0.5",
-    "joblib": "1.6.0"
+    "scikit_learn": "1.7.2",
+    "numpy": "2.3.3",
+    "pandas": "2.3.2",
+    "joblib": "1.5.2"
   },
   "dataset_source": "data/raw/claims.csv",
   "dataset_shape": {
@@ -57,34 +60,34 @@
     ],
     "transformed_feature_count": 138,
     "feature_schema": {
-      "Month": "str",
+      "Month": "object",
       "WeekOfMonth": "int64",
-      "DayOfWeek": "str",
-      "Make": "str",
-      "AccidentArea": "str",
-      "DayOfWeekClaimed": "str",
-      "MonthClaimed": "str",
+      "DayOfWeek": "object",
+      "Make": "object",
+      "AccidentArea": "object",
+      "DayOfWeekClaimed": "object",
+      "MonthClaimed": "object",
       "WeekOfMonthClaimed": "int64",
       "Age": "float64",
-      "Fault": "str",
-      "PolicyType": "str",
-      "VehicleCategory": "str",
-      "VehiclePrice": "str",
+      "Fault": "object",
+      "PolicyType": "object",
+      "VehicleCategory": "object",
+      "VehiclePrice": "object",
       "Deductible": "int64",
       "DriverRating": "int64",
-      "Days_Policy_Accident": "str",
-      "Days_Policy_Claim": "str",
-      "PastNumberOfClaims": "str",
-      "AgeOfVehicle": "str",
-      "AgeOfPolicyHolder": "str",
-      "PoliceReportFiled": "str",
-      "WitnessPresent": "str",
-      "AgentType": "str",
-      "NumberOfSuppliments": "str",
-      "AddressChange_Claim": "str",
-      "NumberOfCars": "str",
+      "Days_Policy_Accident": "object",
+      "Days_Policy_Claim": "object",
+      "PastNumberOfClaims": "object",
+      "AgeOfVehicle": "object",
+      "AgeOfPolicyHolder": "object",
+      "PoliceReportFiled": "object",
+      "WitnessPresent": "object",
+      "AgentType": "object",
+      "NumberOfSuppliments": "object",
+      "AddressChange_Claim": "object",
+      "NumberOfCars": "object",
       "Year": "int64",
-      "BasePolicy": "str"
+      "BasePolicy": "object"
     }
   },
   "excluded_columns": [
@@ -98,13 +101,13 @@
     "val": 2313,
     "test": 2313
   },
-  "selected_threshold": 0.61,
+  "selected_threshold": 0.12,
   "threshold_policy": {
     "risk_categories": {
-      "LOW": "risk_score < 42.7",
-      "MEDIUM": "42.7 <= risk_score < 61.0",
-      "HIGH": "risk_score >= 61.0 (flag for human investigation)"
+      "LOW": "risk_score < 8.4",
+      "MEDIUM": "8.4 <= risk_score < 12.0",
+      "HIGH": "risk_score >= 12.0 (flag for human investigation)"
     },
-    "selection_justification": "Threshold selected on validation data to maximize F1-score and ensure at least 50% recall for fraud detection in an imbalanced setting."
+    "selection_justification": "Calibrated threshold selected on validation data to maximize F1-score and ensure at least 50% recall for fraud detection in an imbalanced setting."
   }
 }

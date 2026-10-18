@@ -21,6 +21,19 @@ from ml.predict import (
 logger = logging.getLogger("insurance_api.scoring_service")
 
 
+def get_risk_thresholds() -> tuple[float, float]:
+    """Retrieve calibrated risk thresholds from metadata.json or settings fallback."""
+    try:
+        meta = ml_get_model_info()
+        if meta and "selected_threshold" in meta:
+            high_thresh = float(meta["selected_threshold"])
+            low_thresh = round(high_thresh * 0.70, 4)
+            return low_thresh, high_thresh
+    except Exception as exc:
+        logger.warning("Could not read threshold from metadata: %s. Using settings fallback.", exc)
+    return settings.RISK_THRESHOLD_LOW, settings.RISK_THRESHOLD_HIGH
+
+
 def evaluate_risk_category(fraud_probability: float) -> tuple[RiskCategory, bool, str]:
     """
     Categorize risk tier and generate review recommendation from probability.
@@ -28,13 +41,14 @@ def evaluate_risk_category(fraud_probability: float) -> tuple[RiskCategory, bool
     Returns:
         tuple[RiskCategory, requires_human_review, operational_message]
     """
-    if fraud_probability < settings.RISK_THRESHOLD_LOW:
+    threshold_low, threshold_high = get_risk_thresholds()
+    if fraud_probability < threshold_low:
         return (
             RiskCategory.LOW,
             False,
             "Low model-estimated risk. Eligible for expedited processing.",
         )
-    elif fraud_probability < settings.RISK_THRESHOLD_HIGH:
+    elif fraud_probability < threshold_high:
         return (
             RiskCategory.MEDIUM,
             True,

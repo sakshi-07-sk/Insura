@@ -1,8 +1,9 @@
 """Model Training and Selection Pipeline for Real-Time Insurance Claim Risk Scoring.
 
-Trains baseline models (Random Forest and Logistic Regression), performs validation-based
-model comparison, selects a business-justified decision threshold, evaluates on the held-out
-test set, and serializes the complete end-to-end pipeline and metadata.
+Trains candidate models (HistGradientBoosting, Random Forest, and Logistic Regression),
+performs 5-fold Stratified Cross-Validation for model selection, applies CalibratedClassifierCV
+for honest, reliable probability estimates, tunes business-optimal decision thresholds,
+evaluates on held-out test data, and serializes the complete pipeline and metadata.
 """
 
 import argparse
@@ -20,9 +21,12 @@ import joblib
 import numpy as np
 import pandas as pd
 import sklearn
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import average_precision_score, roc_auc_score, brier_score_loss
 
 from backend.training.evaluate_model import (
     compute_metrics,
@@ -46,7 +50,7 @@ def train_and_evaluate_pipeline(
     random_state: int = 42,
     min_recall: float = 0.50,
 ) -> Dict[str, Any]:
-    """Executes the full training, comparison, threshold tuning, and serialization pipeline.
+    """Executes the full training, comparison, calibration, threshold tuning, and serialization pipeline.
 
     Parameters
     ----------
@@ -107,8 +111,15 @@ def train_and_evaluate_pipeline(
     # 4. Build Preprocessor (Fitted strictly on Training set only)
     preprocessor = build_preprocessor(numeric_features=num_cols, categorical_features=cat_cols)
 
-    # 5. Define Candidate Models
+    # 5. Define Candidate Architectures
     models = {
+        "HistGradientBoosting": HistGradientBoostingClassifier(
+            max_iter=150,
+            max_depth=8,
+            min_samples_leaf=15,
+            class_weight="balanced",
+            random_state=random_state,
+        ),
         "RandomForest": RandomForestClassifier(
             n_estimators=150,
             max_depth=12,
@@ -126,52 +137,98 @@ def train_and_evaluate_pipeline(
         ),
     }
 
-    # 6. Train and Compare on Validation Set
-    print("\n[*] Training candidate models on Train set & evaluating on Validation set...")
+    # 6. Cross-Validation and Model Comparison on Training Set
+    print("\n[*] Running 5-Fold Stratified Cross-Validation across candidate models...")
+    min_class_count = min(int(np.sum(y_train == 0)), int(np.sum(y_train == 1)))
+    n_splits = min(5, min_class_count)
+
+    cv_results: Dict[str, Any] = {}
     val_comparisons: Dict[str, Any] = {}
-    fitted_pipelines: Dict[str, Pipeline] = {}
+    uncalibrated_fitted_pipes: Dict[str, Pipeline] = {}
 
     for name, clf in models.items():
-        pipeline = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", clf)])
-        print(f"    - Fitting {name}...")
-        pipeline.fit(X_train, y_train)
-        fitted_pipelines[name] = pipeline
+        pipe = Pipeline(steps=[("preprocessor", preprocessor), ("classifier", clf)])
 
-        # Validation Probabilities
-        val_probs = pipeline.predict_proba(X_val)[:, 1]
-        metrics_05 = compute_metrics(y_val.to_numpy(), val_probs, threshold=0.5)
-        opt_thresh, opt_metrics = find_optimal_threshold(y_val.to_numpy(), val_probs, min_recall=min_recall)
+        # Cross validation scores
+        if n_splits >= 2:
+            cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+            cv_pr = cross_val_score(pipe, X_train, y_train, cv=cv, scoring="average_precision")
+            cv_roc = cross_val_score(pipe, X_train, y_train, cv=cv, scoring="roc_auc")
+            cv_results[name] = {
+                "mean_cv_pr_auc": round(float(np.mean(cv_pr)), 4),
+                "std_cv_pr_auc": round(float(np.std(cv_pr)), 4),
+                "mean_cv_roc_auc": round(float(np.mean(cv_roc)), 4),
+                "std_cv_roc_auc": round(float(np.std(cv_roc)), 4),
+            }
+            print(f"    - {name}: CV PR-AUC = {np.mean(cv_pr):.4f} (+/- {np.std(cv_pr):.4f}), CV ROC-AUC = {np.mean(cv_roc):.4f}")
+        else:
+            cv_results[name] = {"mean_cv_pr_auc": 0.0, "mean_cv_roc_auc": 0.0}
+
+        # Fit on full training set
+        pipe.fit(X_train, y_train)
+        uncalibrated_fitted_pipes[name] = pipe
+
+        # Evaluate raw validation probabilities
+        val_probs_raw = pipe.predict_proba(X_val)[:, 1]
+        metrics_05 = compute_metrics(y_val.to_numpy(), val_probs_raw, threshold=0.5)
+        opt_thresh, opt_metrics = find_optimal_threshold(y_val.to_numpy(), val_probs_raw, min_recall=min_recall)
 
         val_comparisons[name] = {
             "default_0_5_metrics": metrics_05,
             "optimal_threshold": opt_thresh,
             "optimal_metrics": opt_metrics,
+            "cv_scores": cv_results[name],
         }
 
-        print(
-            f"      * {name} (Thresh 0.50): PR-AUC={metrics_05['pr_auc']:.3f}, ROC-AUC={metrics_05['roc_auc']:.3f}, "
-            f"Recall={metrics_05['recall']:.3f}, Precision={metrics_05['precision']:.3f}, F1={metrics_05['f1_score']:.3f}"
-        )
-        print(
-            f"      * {name} (Tuned Thresh {opt_thresh:.2f}): Recall={opt_metrics['recall']:.3f}, "
-            f"Precision={opt_metrics['precision']:.3f}, F1={opt_metrics['f1_score']:.3f}"
-        )
+    # 7. Model Selection based on CV and Validation PR-AUC
+    selected_model_name = max(
+        models.keys(),
+        key=lambda k: cv_results[k]["mean_cv_pr_auc"]
+        if cv_results[k]["mean_cv_pr_auc"] > 0
+        else val_comparisons[k]["default_0_5_metrics"]["pr_auc"]
+    )
+    print(f"\n[+] Champion Architecture Selected: '{selected_model_name}'")
 
-    # 7. Model Selection: Select based on PR-AUC, F1, and Fraud Detection Recall
-    rf_pr_auc = val_comparisons["RandomForest"]["default_0_5_metrics"]["pr_auc"]
-    lr_pr_auc = val_comparisons["LogisticRegression"]["default_0_5_metrics"]["pr_auc"]
+    # 8. Probability Calibration with CalibratedClassifierCV
+    print(f"[*] Applying probability calibration (CalibratedClassifierCV, sigmoid)...")
+    base_clf = models[selected_model_name]
 
-    selected_model_name = "RandomForest" if rf_pr_auc >= lr_pr_auc else "LogisticRegression"
-    selected_pipeline = fitted_pipelines[selected_model_name]
-    selected_thresh = val_comparisons[selected_model_name]["optimal_threshold"]
-    val_selected_metrics = val_comparisons[selected_model_name]["optimal_metrics"]
+    # Pre-transform training and validation data using fitted preprocessor
+    fitted_preprocessor = preprocessor.fit(X_train)
+    X_train_trans = fitted_preprocessor.transform(X_train)
+    X_val_trans = fitted_preprocessor.transform(X_val)
+    X_test_trans = fitted_preprocessor.transform(X_test)
 
-    print(f"\n[+] Selected Model: '{selected_model_name}' (PR-AUC: {val_comparisons[selected_model_name]['default_0_5_metrics']['pr_auc']:.4f})")
+    cal_cv = min(5, min_class_count)
+    if cal_cv >= 2:
+        calibrated_clf = CalibratedClassifierCV(estimator=base_clf, method="sigmoid", cv=cal_cv)
+    else:
+        calibrated_clf = base_clf
+
+    calibrated_clf.fit(X_train_trans, y_train)
+
+    # Build final serializable pipeline
+    selected_pipeline = Pipeline(steps=[("preprocessor", fitted_preprocessor), ("classifier", calibrated_clf)])
+
+    # 9. Threshold Selection using Calibrated Validation Probabilities
+    print("\n[*] Optimizing decision threshold on calibrated validation probabilities...")
+    val_cal_probs = selected_pipeline.predict_proba(X_val)[:, 1]
+    raw_val_brier = brier_score_loss(y_val, uncalibrated_fitted_pipes[selected_model_name].predict_proba(X_val)[:, 1])
+    cal_val_brier = brier_score_loss(y_val, val_cal_probs)
+
+    print(f"    - Brier Calibration Loss: Raw = {raw_val_brier:.4f} -> Calibrated = {cal_val_brier:.4f}")
+
+    selected_thresh, val_selected_metrics = find_optimal_threshold(
+        y_val.to_numpy(), val_cal_probs, min_recall=min_recall
+    )
     print(f"    - Selected Decision Threshold: {selected_thresh:.2f} (derived from validation optimization)")
+    print(f"    - Validation Performance: Recall = {val_selected_metrics['recall']:.2%}, "
+          f"Precision = {val_selected_metrics['precision']:.2%}, F1 = {val_selected_metrics['f1_score']:.4f}")
 
-    # 8. Single Final Evaluation on Held-Out Test Set
-    print("\n[*] Evaluating selected model on Held-Out Test set (Single pass, no tuning)...")
+    # 10. Single Final Evaluation on Held-Out Test Set
+    print("\n[*] Evaluating calibrated champion model on Held-Out Test set...")
     test_probs = selected_pipeline.predict_proba(X_test)[:, 1]
+    test_brier = brier_score_loss(y_test, test_probs)
 
     test_metrics_selected_th = compute_metrics(y_test.to_numpy(), test_probs, threshold=selected_thresh)
     test_metrics_default_th = compute_metrics(y_test.to_numpy(), test_probs, threshold=0.5)
@@ -182,6 +239,7 @@ def train_and_evaluate_pipeline(
     print(f"      * F1-Score: {test_metrics_selected_th['f1_score']:.4f}")
     print(f"      * PR-AUC (Average Precision): {test_metrics_selected_th['pr_auc']:.4f}")
     print(f"      * ROC-AUC: {test_metrics_selected_th['roc_auc']:.4f}")
+    print(f"      * Brier Score (Calibration): {test_brier:.4f}")
     print(
         f"      * Confusion Matrix: TP={test_metrics_selected_th['confusion_matrix']['true_positives']}, "
         f"FP={test_metrics_selected_th['confusion_matrix']['false_positives']}, "
@@ -189,13 +247,32 @@ def train_and_evaluate_pipeline(
         f"TN={test_metrics_selected_th['confusion_matrix']['true_negatives']}"
     )
 
-    # 9. Extract Global Feature Importances
+    # 11. Extract Feature Importances
     feature_importances_dict: Dict[str, float] = {}
-    fitted_preprocessor = selected_pipeline.named_steps["preprocessor"]
     transformed_feature_names = fitted_preprocessor.get_feature_names_out().tolist()
 
-    if hasattr(selected_pipeline.named_steps["classifier"], "feature_importances_"):
-        raw_importances = selected_pipeline.named_steps["classifier"].feature_importances_
+    # Retrieve base classifier importances if available
+    raw_importances = None
+    if hasattr(calibrated_clf, "calibrated_classifiers_"):
+        first_cal = calibrated_clf.calibrated_classifiers_[0]
+        base_estimator = getattr(first_cal, "estimator", getattr(first_cal, "base_estimator", None))
+        if hasattr(base_estimator, "feature_importances_"):
+            # Average across calibrated ensemble folds
+            fold_imps = [
+                getattr(c, "estimator", getattr(c, "base_estimator", None)).feature_importances_
+                for c in calibrated_clf.calibrated_classifiers_
+                if hasattr(getattr(c, "estimator", getattr(c, "base_estimator", None)), "feature_importances_")
+            ]
+            if fold_imps:
+                raw_importances = np.mean(fold_imps, axis=0)
+
+    if raw_importances is None:
+        # Fall back to uncalibrated pipeline or permutation importance
+        uncal_clf = uncalibrated_fitted_pipes[selected_model_name].named_steps["classifier"]
+        if hasattr(uncal_clf, "feature_importances_"):
+            raw_importances = uncal_clf.feature_importances_
+
+    if raw_importances is not None:
         sorted_indices = np.argsort(raw_importances)[::-1]
         for idx in sorted_indices:
             feat = transformed_feature_names[idx]
@@ -209,9 +286,9 @@ def train_and_evaluate_pipeline(
             model_name=selected_model_name,
         )
 
-    # 10. Generate Evaluation Plots
+    # 12. Generate Evaluation Plots
     print(f"[*] Generating evaluation plots in {figures_dir}...")
-    plot_files = generate_evaluation_plots(
+    generate_evaluation_plots(
         y_true=y_test.to_numpy(),
         y_prob=test_probs,
         selected_threshold=selected_thresh,
@@ -219,18 +296,21 @@ def train_and_evaluate_pipeline(
         model_name=selected_model_name,
     )
 
-    # 11. Save Complete Pipeline Artifact
+    # 13. Save Complete Pipeline Artifact
     model_artifact_path = os.path.join(model_dir, "risk_model.joblib")
     print(f"[*] Serializing complete fitted pipeline to: {model_artifact_path}")
     joblib.dump(selected_pipeline, model_artifact_path, compress=3)
 
-    # 12. Save Metadata and Schema
+    # 14. Save Metadata and Schema
     model_version = "1.0.0"
     feature_schema = {col: str(X[col].dtype) for col in X.columns}
 
     metadata = {
         "model_version": model_version,
         "model_type": selected_model_name,
+        "is_calibrated": True,
+        "calibration_method": "sigmoid",
+        "cross_validation_folds": n_splits,
         "training_timestamp": datetime.now(timezone.utc).isoformat(),
         "python_version": sys.version,
         "os_architecture": platform.machine(),
@@ -266,7 +346,7 @@ def train_and_evaluate_pipeline(
                 "HIGH": f"risk_score >= {round(selected_thresh * 100, 1)} (flag for human investigation)",
             },
             "selection_justification": (
-                "Threshold selected on validation data to maximize F1-score and ensure "
+                "Calibrated threshold selected on validation data to maximize F1-score and ensure "
                 f"at least {min_recall:.0%} recall for fraud detection in an imbalanced setting."
             ),
         },
@@ -276,21 +356,23 @@ def train_and_evaluate_pipeline(
     with open(metadata_path, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
-    # 13. Save Comprehensive Metrics
+    # 15. Save Comprehensive Metrics
     metrics_report = {
         "model_name": selected_model_name,
         "selected_threshold": round(float(selected_thresh), 4),
+        "cross_validation": cv_results,
         "validation_comparison": val_comparisons,
         "validation_selected_metrics": val_selected_metrics,
         "test_metrics_selected_threshold": test_metrics_selected_th,
         "test_metrics_default_0_5_threshold": test_metrics_default_th,
+        "test_brier_score": round(float(test_brier), 4),
     }
 
     metrics_path = os.path.join(model_dir, "metrics.json")
     with open(metrics_path, "w", encoding="utf-8") as f:
         json.dump(metrics_report, f, indent=2)
 
-    # 14. Save Feature Importances
+    # 16. Save Feature Importances
     fi_path = os.path.join(model_dir, "feature_importance.json")
     with open(fi_path, "w", encoding="utf-8") as f:
         json.dump(feature_importances_dict, f, indent=2)
@@ -298,53 +380,31 @@ def train_and_evaluate_pipeline(
     print("\n========================================================")
     print("  TRAINING COMPLETE — ARTIFACTS GENERATED:")
     print(f"  [1] Pipeline Binary:    {model_artifact_path}")
-    print(f"  [2] Model Metadata:     {metadata_path}")
-    print(f"  [3] Metrics Report:     {metrics_path}")
+    print(f"  [2] Metadata JSON:      {metadata_path}")
+    print(f"  [3] Metrics JSON:       {metrics_path}")
     print(f"  [4] Feature Importance: {fi_path}")
-    print(f"  [5] Figures:            {figures_dir}")
     print("========================================================\n")
 
-    return metrics_report
+    return {
+        "model_name": selected_model_name,
+        "selected_threshold": selected_thresh,
+        "validation_selected_metrics": val_selected_metrics,
+        "test_metrics_selected_threshold": test_metrics_selected_th,
+        "test_metrics_default_threshold": test_metrics_default_th,
+        "model_artifact_path": model_artifact_path,
+        "metadata_path": metadata_path,
+        "metrics_path": metrics_path,
+    }
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Train insurance claim fraud risk scoring pipeline.")
-    parser.add_argument(
-        "--data",
-        type=str,
-        default="data/raw/claims.csv",
-        help="Path to raw CSV dataset (default: data/raw/claims.csv)",
-    )
-    parser.add_argument(
-        "--target",
-        type=str,
-        default="FraudFound_P",
-        help="Target column name (default: FraudFound_P)",
-    )
-    parser.add_argument(
-        "--model-dir",
-        type=str,
-        default="backend/models",
-        help="Directory to save model artifacts (default: backend/models)",
-    )
-    parser.add_argument(
-        "--reports-dir",
-        type=str,
-        default="reports",
-        help="Directory to save reports & figures (default: reports)",
-    )
-    parser.add_argument(
-        "--random-state",
-        type=int,
-        default=42,
-        help="Reproducibility seed (default: 42)",
-    )
-    parser.add_argument(
-        "--min-recall",
-        type=float,
-        default=0.50,
-        help="Minimum target recall for validation threshold selection (default: 0.50)",
-    )
+    parser = argparse.ArgumentParser(description="Train insurance fraud risk scoring model.")
+    parser.add_argument("--data", type=str, default="data/raw/claims.csv", help="Path to raw dataset")
+    parser.add_argument("--target", type=str, default="FraudFound_P", help="Target column name")
+    parser.add_argument("--model-dir", type=str, default="backend/models", help="Model artifact directory")
+    parser.add_argument("--reports-dir", type=str, default="reports", help="Reports directory")
+    parser.add_argument("--seed", type=int, default=42, help="Random state seed")
+    parser.add_argument("--min-recall", type=float, default=0.50, help="Minimum validation recall")
     args = parser.parse_args()
 
     train_and_evaluate_pipeline(
@@ -352,7 +412,7 @@ def main():
         target_col=args.target,
         model_dir=args.model_dir,
         reports_dir=args.reports_dir,
-        random_state=args.random_state,
+        random_state=args.seed,
         min_recall=args.min_recall,
     )
 

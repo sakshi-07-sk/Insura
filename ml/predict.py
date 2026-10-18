@@ -107,8 +107,19 @@ def load_model(
 
 def get_model_info(model_dir: Optional[str] = None) -> Dict[str, Any]:
     """Returns model metadata, versions, threshold policies, and required feature schema."""
-    _, metadata = load_model()
-    return metadata
+    global _CACHED_METADATA
+    if _CACHED_METADATA is not None:
+        return _CACHED_METADATA
+    try:
+        _, metadata = load_model()
+        return metadata
+    except ModelNotLoadedError:
+        meta_path = os.path.join(model_dir or os.path.dirname(DEFAULT_METADATA_PATH), "metadata.json")
+        if os.path.exists(meta_path):
+            with open(meta_path, "r", encoding="utf-8") as f:
+                _CACHED_METADATA = json.load(f)
+                return _CACHED_METADATA
+        return {}
 
 
 def validate_claim(

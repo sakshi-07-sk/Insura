@@ -20,7 +20,7 @@ def test_get_model_info():
     """Test retrieving active model configuration and schema."""
     info = get_model_info()
     assert info["model_version"] == "1.0.0"
-    assert info["model_type"] in ["RandomForest", "LogisticRegression"]
+    assert info["model_type"] in ["RandomForest", "LogisticRegression", "HistGradientBoosting"]
     assert "features" in info
 
 
