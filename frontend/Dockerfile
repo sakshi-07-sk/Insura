@@ -4,7 +4,7 @@
 # Avoids node/esbuild native binary architecture incompatibilities on s390x
 # ==============================================================================
 
-FROM nginx:bookworm-slim
+FROM nginx:alpine
 
 # Remove default nginx static html
 RUN rm -rf /usr/share/nginx/html/*
