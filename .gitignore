@@ -70,5 +70,6 @@ Thumbs.db
 # Node / Frontend
 node_modules/
 frontend/node_modules/
-frontend/dist/
 *.local
+!frontend/dist/
+!frontend/dist/**
